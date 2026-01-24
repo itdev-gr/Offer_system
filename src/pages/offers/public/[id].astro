@@ -362,63 +362,65 @@ validUntil.setDate(validUntil.getDate() + (offer.validityDays || 14));
   </div>
 
   {!isExpired && (
-    <script set:html={`
-      // Accordion functionality
-      document.querySelectorAll('[data-accordion-toggle]').forEach((button) => {
-        button.addEventListener('click', () => {
-          const targetId = button.getAttribute('data-accordion-toggle');
-          const content = document.getElementById(targetId);
-          const icon = button.querySelector('.accordion-icon');
-          
-          if (content) {
-            const isOpen = content.style.display !== 'none';
-            content.style.display = isOpen ? 'none' : 'block';
-            if (icon) {
-              icon.style.transform = isOpen ? 'rotate(0deg)' : 'rotate(180deg)';
+    <script>
+      {`
+        // Accordion functionality
+        document.querySelectorAll('[data-accordion-toggle]').forEach((button) => {
+          button.addEventListener('click', () => {
+            const targetId = button.getAttribute('data-accordion-toggle');
+            const content = document.getElementById(targetId);
+            const icon = button.querySelector('.accordion-icon');
+            
+            if (content) {
+              const isOpen = content.style.display !== 'none';
+              content.style.display = isOpen ? 'none' : 'block';
+              if (icon) {
+                icon.style.transform = isOpen ? 'rotate(0deg)' : 'rotate(180deg)';
+              }
             }
+          });
+        });
+
+        // Initialize all accordions as open
+        document.querySelectorAll('.accordion-content').forEach((content) => {
+          content.style.display = 'block';
+        });
+        document.querySelectorAll('.accordion-icon').forEach((icon) => {
+          icon.style.transform = 'rotate(180deg)';
+        });
+
+        // PDF download
+        const downloadBtn = document.getElementById('downloadPdf');
+        downloadBtn?.addEventListener('click', async () => {
+          const offerId = '${id}';
+          if (!offerId) {
+            alert('Offer ID not found');
+            return;
+          }
+          try {
+            const response = await fetch('/api/pdf/public?offerId=' + encodeURIComponent(offerId), {
+              method: 'POST',
+            });
+
+            if (!response.ok) {
+              const errorData = await response.json().catch(() => ({ error: 'Failed to generate PDF' }));
+              throw new Error(errorData.error || 'Failed to generate PDF');
+            }
+
+            const blob = await response.blob();
+            const url = window.URL.createObjectURL(blob);
+            const a = document.createElement('a');
+            a.href = url;
+            a.download = 'offer-' + offerId.slice(0, 8) + '.pdf';
+            document.body.appendChild(a);
+            a.click();
+            window.URL.revokeObjectURL(url);
+            document.body.removeChild(a);
+          } catch (error) {
+            alert('Failed to download PDF: ' + error.message);
           }
         });
-      });
-
-      // Initialize all accordions as open
-      document.querySelectorAll('.accordion-content').forEach((content) => {
-        content.style.display = 'block';
-      });
-      document.querySelectorAll('.accordion-icon').forEach((icon) => {
-        icon.style.transform = 'rotate(180deg)';
-      });
-
-      // PDF download
-      const downloadBtn = document.getElementById('downloadPdf');
-      downloadBtn?.addEventListener('click', async () => {
-        const offerId = downloadBtn?.getAttribute('data-offer-id');
-        if (!offerId) {
-          alert('Offer ID not found');
-          return;
-        }
-        try {
-          const response = await fetch('/api/pdf/public?offerId=' + encodeURIComponent(offerId), {
-            method: 'POST',
-          });
-
-          if (!response.ok) {
-            const errorData = await response.json().catch(() => ({ error: 'Failed to generate PDF' }));
-            throw new Error(errorData.error || 'Failed to generate PDF');
-          }
-
-          const blob = await response.blob();
-          const url = window.URL.createObjectURL(blob);
-          const a = document.createElement('a');
-          a.href = url;
-          a.download = 'offer-' + offerId.slice(0, 8) + '.pdf';
-          document.body.appendChild(a);
-          a.click();
-          window.URL.revokeObjectURL(url);
-          document.body.removeChild(a);
-        } catch (error) {
-          alert('Failed to download PDF: ' + error.message);
-        }
-      });
-    `} />
+      `}
+    </script>
   )}
 </Layout>
