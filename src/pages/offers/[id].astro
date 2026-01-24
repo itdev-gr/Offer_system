@@ -1,15 +1,19 @@
 ---
 import Layout from '../../layouts/Layout.astro';
-import { requireUser } from '../../lib/auth/middleware';
+import { verifySession } from '../../lib/auth/middleware';
 import { getAdminDb } from '../../lib/firebase/admin';
 import { formatCurrency } from '../../lib/money';
 import type { OfferItem } from '../../lib/money';
 
 const { id } = Astro.params;
-const user = await requireUser(Astro.cookies);
+const user = await verifySession(Astro.cookies);
 
 if (!id) {
   return Astro.redirect('/offers/new');
+}
+
+if (!user) {
+  return Astro.redirect(`/offers/public/${id}`);
 }
 
 const db = await getAdminDb();
