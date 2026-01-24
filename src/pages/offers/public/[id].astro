@@ -1,0 +1,222 @@
+---
+import Layout from '../../../layouts/Layout.astro';
+import { getAdminDb } from '../../../lib/firebase/admin';
+import { formatCurrency } from '../../../lib/money';
+import type { OfferItem } from '../../../lib/money';
+
+const { id } = Astro.params;
+
+if (!id) {
+  return new Response('Offer not found', { status: 404 });
+}
+
+const db = await getAdminDb();
+const offerDoc = await db.collection('offers').doc(id).get();
+
+if (!offerDoc.exists) {
+  return new Response('Offer not found', { status: 404 });
+}
+
+const offer = offerDoc.data()!;
+const items = offer.items as OfferItem[];
+const totals = offer.totals;
+
+// Check if shareable link has expired
+const now = new Date();
+const expiresAt = offer.shareableLinkExpiresAt 
+  ? (offer.shareableLinkExpiresAt?.toDate?.() || new Date(offer.shareableLinkExpiresAt))
+  : null;
+const isExpired = expiresAt ? expiresAt < now : false;
+
+const createdAt = offer.createdAt?.toDate?.() || new Date(offer.createdAt);
+const validUntil = new Date(createdAt);
+validUntil.setDate(validUntil.getDate() + (offer.validityDays || 14));
+---
+
+<Layout title={`Offer ${id}`}>
+  <div class="min-h-screen bg-gray-50">
+    <div class="max-w-4xl mx-auto px-4 py-8">
+      {isExpired ? (
+        <div class="bg-white rounded-lg shadow-md p-8 text-center">
+          <div class="mb-4">
+            <svg class="mx-auto h-12 w-12 text-red-500" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+              <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 8v4m0 4h.01M21 12a9 9 0 11-18 0 9 9 0 0118 0z" />
+            </svg>
+          </div>
+          <h1 class="text-2xl font-bold text-gray-900 mb-2">Link Expired</h1>
+          <p class="text-gray-600">
+            This offer link has expired. Please contact the sales team for a new link.
+          </p>
+          {expiresAt && (
+            <p class="text-sm text-gray-500 mt-2">
+              Expired on: {expiresAt.toLocaleDateString()}
+            </p>
+          )}
+        </div>
+      ) : (
+        <>
+          <div class="mb-6">
+            <h1 class="text-3xl font-bold text-gray-900">Offer Details</h1>
+          </div>
+
+          <div class="bg-white rounded-lg shadow-md p-8">
+            <div class="mb-6">
+              <div class="flex justify-between items-start mb-4">
+                <div>
+                  <h2 class="text-2xl font-bold text-gray-900">Offer #{id.slice(0, 8)}</h2>
+                  <p class="text-sm text-gray-500 mt-1">
+                    Created: {createdAt.toLocaleDateString()}
+                  </p>
+                </div>
+                <button
+                  id="downloadPdf"
+                  class="px-4 py-2 bg-indigo-600 text-white rounded-md hover:bg-indigo-700"
+                >
+                  Download PDF
+                </button>
+              </div>
+            </div>
+
+            <div class="grid grid-cols-2 gap-6 mb-6">
+              <div>
+                <h3 class="text-sm font-medium text-gray-500 mb-1">Client</h3>
+                <p class="text-lg font-semibold">{offer.clientName}</p>
+                {offer.companyName && (
+                  <p class="text-sm text-gray-600">{offer.companyName}</p>
+                )}
+                {offer.email && (
+                  <p class="text-sm text-gray-600">{offer.email}</p>
+                )}
+              </div>
+              <div>
+                <h3 class="text-sm font-medium text-gray-500 mb-1">Validity</h3>
+                <p class="text-sm text-gray-900">
+                  Valid until: {validUntil.toLocaleDateString()}
+                </p>
+                <p class="text-sm text-gray-500">
+                  ({offer.validityDays} days)
+                </p>
+              </div>
+            </div>
+
+            <div class="border-t pt-6 mb-6">
+              <h3 class="text-lg font-semibold mb-4">Items</h3>
+              <div class="overflow-x-auto">
+                <table class="min-w-full divide-y divide-gray-200">
+                  <thead class="bg-gray-50">
+                    <tr>
+                      <th class="px-4 py-3 text-left text-xs font-medium text-gray-500 uppercase">
+                        Category
+                      </th>
+                      <th class="px-4 py-3 text-left text-xs font-medium text-gray-500 uppercase">
+                        Item
+                      </th>
+                      <th class="px-4 py-3 text-right text-xs font-medium text-gray-500 uppercase">
+                        Qty
+                      </th>
+                      <th class="px-4 py-3 text-right text-xs font-medium text-gray-500 uppercase">
+                        Unit Price
+                      </th>
+                      <th class="px-4 py-3 text-right text-xs font-medium text-gray-500 uppercase">
+                        Total
+                      </th>
+                    </tr>
+                  </thead>
+                  <tbody class="bg-white divide-y divide-gray-200">
+                    {items.map((item, index) => (
+                      <tr key={index}>
+                        <td class="px-4 py-3 text-sm text-gray-900">{item.category}</td>
+                        <td class="px-4 py-3">
+                          <p class="text-sm font-medium text-gray-900">{item.label}</p>
+                          <p class="text-xs text-gray-500">{item.description}</p>
+                        </td>
+                        <td class="px-4 py-3 text-sm text-gray-900 text-right">
+                          {item.qty}
+                        </td>
+                        <td class="px-4 py-3 text-sm text-gray-900 text-right">
+                          {formatCurrency(item.unitPrice, offer.currency)}
+                        </td>
+                        <td class="px-4 py-3 text-sm font-semibold text-gray-900 text-right">
+                          {formatCurrency(item.lineTotal, offer.currency)}
+                        </td>
+                      </tr>
+                    ))}
+                  </tbody>
+                </table>
+              </div>
+            </div>
+
+            <div class="border-t pt-6">
+              <div class="flex justify-end">
+                <div class="w-64 space-y-2">
+                  <div class="flex justify-between text-sm">
+                    <span class="text-gray-600">Subtotal:</span>
+                    <span class="text-gray-900">{formatCurrency(totals.subtotal, offer.currency)}</span>
+                  </div>
+                  {offer.discountPercent > 0 && (
+                    <div class="flex justify-between text-sm text-green-600">
+                      <span>Discount ({offer.discountPercent}%):</span>
+                      <span>-{formatCurrency(totals.discountAmount, offer.currency)}</span>
+                    </div>
+                  )}
+                  <div class="flex justify-between text-sm">
+                    <span class="text-gray-600">Taxable:</span>
+                    <span class="text-gray-900">{formatCurrency(totals.taxable, offer.currency)}</span>
+                  </div>
+                  {offer.vatPercent > 0 && (
+                    <div class="flex justify-between text-sm">
+                      <span class="text-gray-600">VAT ({offer.vatPercent}%):</span>
+                      <span class="text-gray-900">{formatCurrency(totals.vatAmount, offer.currency)}</span>
+                    </div>
+                  )}
+                  <div class="flex justify-between text-lg font-bold border-t pt-2">
+                    <span>Total:</span>
+                    <span>{formatCurrency(totals.total, offer.currency)}</span>
+                  </div>
+                </div>
+              </div>
+            </div>
+
+            {offer.notes && (
+              <div class="border-t pt-6 mt-6">
+                <h3 class="text-sm font-medium text-gray-500 mb-2">Notes</h3>
+                <p class="text-sm text-gray-900 whitespace-pre-wrap">{offer.notes}</p>
+              </div>
+            )}
+          </div>
+        </>
+      )}
+    </div>
+  </div>
+
+  {!isExpired && (
+    <script>
+      const downloadBtn = document.getElementById('downloadPdf');
+      downloadBtn?.addEventListener('click', async () => {
+        const offerId = '{id}';
+        try {
+          const response = await fetch(`/api/pdf/public?offerId=${offerId}`, {
+            method: 'POST',
+          });
+
+          if (!response.ok) {
+            const errorData = await response.json().catch(() => ({ error: 'Failed to generate PDF' }));
+            throw new Error(errorData.error || 'Failed to generate PDF');
+          }
+
+          const blob = await response.blob();
+          const url = window.URL.createObjectURL(blob);
+          const a = document.createElement('a');
+          a.href = url;
+          a.download = `offer-${offerId.slice(0, 8)}.pdf`;
+          document.body.appendChild(a);
+          a.click();
+          window.URL.revokeObjectURL(url);
+          document.body.removeChild(a);
+        } catch (error) {
+          alert('Failed to download PDF: ' + (error as Error).message);
+        }
+      });
+    </script>
+  )}
+</Layout>
