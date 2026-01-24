@@ -21,20 +21,31 @@ async function initializeAdmin() {
     return { app, adminAuth, adminDb };
   }
 
-  // Try service account file first
+  // Try service account JSON first (works well in Vercel env vars)
+  const serviceAccountJson = import.meta.env.FIREBASE_SERVICE_ACCOUNT_JSON;
   const serviceAccountPath = import.meta.env.FIREBASE_SERVICE_ACCOUNT_PATH;
   
-  if (serviceAccountPath) {
+  if (serviceAccountJson) {
+    try {
+      const parsed = JSON.parse(serviceAccountJson);
+      app = initializeApp({
+        credential: cert(parsed),
+      });
+    } catch (error) {
+      console.error('Error parsing service account JSON:', error);
+      throw error;
+    }
+  } else if (serviceAccountPath) {
     try {
       // Use Node.js fs to read the service account file
       const fs = await import('node:fs');
       const path = await import('node:path');
       const filePath = path.resolve(process.cwd(), serviceAccountPath);
-      const serviceAccountJson = JSON.parse(
+      const serviceAccountFileJson = JSON.parse(
         fs.readFileSync(filePath, 'utf8')
       );
       app = initializeApp({
-        credential: cert(serviceAccountJson),
+        credential: cert(serviceAccountFileJson),
       });
     } catch (error) {
       console.error('Error loading service account file:', error);
