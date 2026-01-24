@@ -41,8 +41,8 @@ validUntil.setDate(validUntil.getDate() + (offer.validityDays || 14));
 ---
 
 <Layout title={`Offer ${id}`}>
-  <div class="min-h-screen bg-white">
-    <div class="max-w-6xl mx-auto px-6 py-10">
+  <div class="min-h-screen bg-[#5aa9a5]">
+    <div class="max-w-5xl mx-auto px-6 py-10">
       {isExpired ? (
         <div class="bg-white rounded-lg shadow-md p-8 text-center">
           <div class="mb-4">
@@ -62,37 +62,52 @@ validUntil.setDate(validUntil.getDate() + (offer.validityDays || 14));
         </div>
       ) : (
         <>
-          <div class="rounded-2xl bg-gradient-to-br from-rose-50 via-white to-rose-50 p-8 border border-rose-100 mb-10">
-            <div class="flex flex-col gap-6 md:flex-row md:items-start md:justify-between">
-              <div>
+          <div class="bg-gradient-to-b from-[#118b8f] to-[#0f6f7c] rounded-2xl p-8 md:p-12 mb-10 text-white shadow-lg">
+            <div class="flex flex-col gap-6">
+              <div class="flex items-center justify-between gap-4 flex-wrap">
                 <div class="flex items-center gap-3">
-                  <div class="h-10 w-10 rounded-full bg-rose-600 text-white flex items-center justify-center font-bold">
+                  <div class="h-10 w-10 rounded-full bg-white/15 text-white flex items-center justify-center font-bold">
                     IT
                   </div>
                   <div>
-                    <p class="text-xs uppercase tracking-[0.2em] text-rose-600">IT DEV</p>
-                    <p class="text-xs text-gray-500">Web & Digital Solutions</p>
+                    <p class="text-xs uppercase tracking-[0.2em] text-white/80">IT DEV</p>
+                    <p class="text-xs text-white/70">Web & Digital Solutions</p>
                   </div>
                 </div>
-                <h1 class="text-3xl sm:text-4xl font-bold text-gray-900 mt-4">
-                  ΤΕΧΝΙΚΗ & ΟΙΚΟΝΟΜΙΚΗ ΠΡΟΤΑΣΗ
-                </h1>
-                <p class="text-sm text-gray-600 mt-2">
-                  Εξαγωγή PDF και πλήρη παρουσίαση των υπηρεσιών μας.
-                </p>
-              </div>
-              <div class="flex items-center gap-3">
                 <button
                   id="downloadPdf"
-                  class="px-4 py-2 bg-rose-600 text-white rounded-md hover:bg-rose-700"
+                  class="px-4 py-2 bg-white text-[#0f6f7c] rounded-md hover:bg-white/90 font-semibold"
                 >
                   Λήψη PDF
                 </button>
               </div>
+
+              <h1 class="text-2xl sm:text-3xl font-bold text-center tracking-wide">
+                ΤΕΧΝΙΚΗ & ΟΙΚΟΝΟΜΙΚΗ ΠΡΟΤΑΣΗ
+              </h1>
+
+              <div class="bg-white text-gray-900 rounded-2xl shadow-xl p-6 md:p-8 max-w-3xl mx-auto">
+                <div class="bg-[#0b2f41] text-white rounded-t-2xl px-6 py-3 -mx-6 -mt-6 mb-6 text-center font-semibold">
+                  {offer.clientName}
+                </div>
+                <div class="grid grid-cols-1 md:grid-cols-2 gap-6 text-sm">
+                  <div>
+                    <p class="text-xs uppercase text-gray-500">Prepared for</p>
+                    <p class="font-semibold">{offer.clientName}</p>
+                    {offer.companyName && <p class="text-gray-600">{offer.companyName}</p>}
+                  </div>
+                  <div>
+                    <p class="text-xs uppercase text-gray-500">Client</p>
+                    {offer.email && <p class="text-gray-700">{offer.email}</p>}
+                    <p class="text-gray-700">Πρόταση εκδόθηκε: {createdAt.toLocaleDateString()}</p>
+                    <p class="text-gray-700">Πρόταση ισχύει έως: {validUntil.toLocaleDateString()}</p>
+                  </div>
+                </div>
+              </div>
             </div>
           </div>
 
-          <div class="grid grid-cols-1 md:grid-cols-2 gap-8 bg-gray-50 rounded-lg p-6 mb-10 border border-gray-100">
+          <div class="grid grid-cols-1 md:grid-cols-2 gap-8 bg-white rounded-lg p-6 mb-10 border border-white/30 shadow">
             <div>
               <h3 class="text-xs font-semibold text-gray-500 uppercase mb-2">Prepared for</h3>
               <p class="text-lg font-semibold text-gray-900">{offer.clientName}</p>
@@ -112,16 +127,16 @@ validUntil.setDate(validUntil.getDate() + (offer.validityDays || 14));
             </div>
           </div>
 
-          <section class="mb-10">
+          <section class="mb-10 bg-white rounded-xl p-6 shadow">
             <h2 class="text-2xl font-bold text-gray-900">Έχετε την ιδέα;</h2>
-            <p class="text-lg text-rose-600 font-semibold mt-2">Εμείς την υλοποιούμε.</p>
+            <p class="text-lg text-[#0f6f7c] font-semibold mt-2">Εμείς την υλοποιούμε.</p>
             <p class="text-sm text-gray-600 mt-3">
               Μια ολοκληρωμένη ομάδα από εξειδικευμένους συνεργάτες είναι δίπλα σας
               κάθε στιγμή και συνεργάζεται για το καλύτερο αποτέλεσμα.
             </p>
           </section>
 
-          <section class="mb-10">
+          <section class="mb-10 bg-white rounded-xl p-6 shadow">
             <h2 class="text-xl font-bold text-gray-900 mb-2">Ποιοί είμαστε;</h2>
             <p class="text-sm text-gray-700">
               Σας ευχαριστούμε για το ενδιαφέρον που εκδηλώσατε να συνεργαστείτε
@@ -147,7 +162,7 @@ validUntil.setDate(validUntil.getDate() + (offer.validityDays || 14));
             </div>
           </section>
 
-          <section class="mb-10">
+          <section class="mb-10 bg-white rounded-xl p-6 shadow">
             <h2 class="text-xl font-bold text-gray-900 mb-4">Δυνατότητες - Υπηρεσίες</h2>
             <div class="space-y-4">
               {Object.entries(itemsByCategory).map(([category, categoryItems]) => (
@@ -170,7 +185,7 @@ validUntil.setDate(validUntil.getDate() + (offer.validityDays || 14));
             </div>
           </section>
 
-          <section class="mb-10">
+          <section class="mb-10 bg-white rounded-xl p-6 shadow">
             <h2 class="text-xl font-bold text-gray-900 mb-4">Οικονομική προσφορά</h2>
             <div class="overflow-x-auto bg-white border border-gray-200 rounded-lg">
               <table class="min-w-full divide-y divide-gray-200">
@@ -240,7 +255,7 @@ validUntil.setDate(validUntil.getDate() + (offer.validityDays || 14));
                     <span class="text-gray-900">{formatCurrency(totals.vatAmount, offer.currency)}</span>
                   </div>
                 )}
-                <div class="flex justify-between text-lg font-bold border-t pt-2 text-rose-600">
+                <div class="flex justify-between text-lg font-bold border-t pt-2 text-[#0f6f7c]">
                   <span>Total:</span>
                   <span>{formatCurrency(totals.total, offer.currency)}</span>
                 </div>
@@ -248,7 +263,7 @@ validUntil.setDate(validUntil.getDate() + (offer.validityDays || 14));
             </div>
           </section>
 
-          <section class="mb-10">
+          <section class="mb-10 bg-white rounded-xl p-6 shadow">
             <h2 class="text-xl font-bold text-gray-900 mb-4">Τρόποι πληρωμής & συνεργασίας</h2>
             <div class="grid grid-cols-1 md:grid-cols-2 gap-6">
               <div class="border border-gray-200 rounded-lg p-4">
