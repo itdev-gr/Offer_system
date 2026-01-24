@@ -142,6 +142,12 @@ export default function OfferBuilder() {
               </a>
             )}
             <a
+              href="/profile"
+              className="text-sm text-gray-600 hover:text-gray-900"
+            >
+              Profile
+            </a>
+            <a
               href="/logout"
               className="text-sm text-gray-600 hover:text-gray-900"
             >
