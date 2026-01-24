@@ -41,12 +41,30 @@ export const POST: APIRoute = async ({ request, cookies, url }) => {
     const validUntil = new Date(createdAt);
     validUntil.setDate(validUntil.getDate() + (offer.validityDays || 14));
 
+    // Load sender (creator) information
+    let senderName = '';
+    let senderSurname = '';
+    if (offer.createdBy?.uid) {
+      try {
+        const senderDoc = await db.collection('users').doc(offer.createdBy.uid).get();
+        if (senderDoc.exists) {
+          const senderData = senderDoc.data();
+          senderName = senderData?.name || '';
+          senderSurname = senderData?.surname || '';
+        }
+      } catch (error) {
+        console.error('Error loading sender info:', error);
+      }
+    }
+
     // Render the PDF template to HTML
     const html = renderPdfTemplate({
       offerId,
       clientName: offer.clientName,
       companyName: offer.companyName || undefined,
       email: offer.email || undefined,
+      senderName: senderName || undefined,
+      senderSurname: senderSurname || undefined,
       currency: offer.currency || 'EUR',
       discountPercent: offer.discountPercent || 0,
       vatPercent: offer.vatPercent || 0,

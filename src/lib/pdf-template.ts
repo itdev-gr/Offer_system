@@ -6,6 +6,8 @@ interface PdfTemplateProps {
   clientName: string;
   companyName?: string;
   email?: string;
+  senderName?: string;
+  senderSurname?: string;
   currency: string;
   discountPercent: number;
   vatPercent: number;
@@ -29,6 +31,8 @@ export function renderPdfTemplate(props: PdfTemplateProps): string {
     clientName,
     companyName,
     email,
+    senderName,
+    senderSurname,
     currency,
     discountPercent,
     vatPercent,
@@ -183,6 +187,14 @@ export function renderPdfTemplate(props: PdfTemplateProps): string {
           <strong>${escapeHtml(clientName)}</strong><br />
           ${companyName ? `${escapeHtml(companyName)}<br />` : ''}
           ${email ? `${escapeHtml(email)}<br />` : ''}
+          ${senderName || senderSurname ? `
+          <div style="margin-top: 15px;">
+            <div class="section-title">From</div>
+            <div class="section-content">
+              ${escapeHtml([senderName, senderSurname].filter(Boolean).join(' '))}
+            </div>
+          </div>
+          ` : ''}
         </div>
       </div>
       <div class="offer-details">

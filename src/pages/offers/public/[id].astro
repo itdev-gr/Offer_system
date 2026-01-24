@@ -21,6 +21,22 @@ const offer = offerDoc.data()!;
 const items = offer.items as OfferItem[];
 const totals = offer.totals;
 
+// Load sender (creator) information
+let senderName = '';
+let senderSurname = '';
+if (offer.createdBy?.uid) {
+  try {
+    const senderDoc = await db.collection('users').doc(offer.createdBy.uid).get();
+    if (senderDoc.exists) {
+      const senderData = senderDoc.data();
+      senderName = senderData?.name || '';
+      senderSurname = senderData?.surname || '';
+    }
+  } catch (error) {
+    console.error('Error loading sender info:', error);
+  }
+}
+
 const itemsByCategory = items.reduce((acc: Record<string, OfferItem[]>, item) => {
   const key = item.category || 'Other';
   if (!acc[key]) acc[key] = [];
@@ -103,6 +119,14 @@ validUntil.setDate(validUntil.getDate() + (offer.validityDays || 14));
                     <p class="text-xs uppercase text-gray-500">Prepared for</p>
                     <p class="font-semibold">{offer.clientName}</p>
                     {offer.companyName && <p class="text-gray-600">{offer.companyName}</p>}
+                    {(senderName || senderSurname) && (
+                      <>
+                        <p class="text-xs uppercase text-gray-500 mt-4">From</p>
+                        <p class="text-gray-700">
+                          {senderName} {senderSurname}
+                        </p>
+                      </>
+                    )}
                   </div>
                   <div>
                     <p class="text-xs uppercase text-gray-500">Client</p>
