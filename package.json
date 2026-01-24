@@ -9,6 +9,15 @@
     "astro": "astro"
   },
   "dependencies": {
-    "astro": "^5.16.12"
+    "@astrojs/react": "^4.4.2",
+    "@astrojs/tailwind": "^6.0.2",
+    "astro": "^5.16.12",
+    "cookie": "^1.1.1",
+    "firebase": "^12.8.0",
+    "firebase-admin": "^13.6.0",
+    "playwright": "^1.57.0",
+    "react": "^19.2.3",
+    "react-dom": "^19.2.3",
+    "tailwindcss": "^3.4.19"
   }
 }

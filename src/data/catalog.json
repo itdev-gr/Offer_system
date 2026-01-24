@@ -1,0 +1,132 @@
+{
+  "Website Development": [
+    {
+      "id": "web-dev-basic",
+      "label": "Basic Website",
+      "description": "5-page responsive website with contact form",
+      "price": 1500
+    },
+    {
+      "id": "web-dev-standard",
+      "label": "Standard Website",
+      "description": "10-page responsive website with CMS integration",
+      "price": 3000
+    },
+    {
+      "id": "web-dev-premium",
+      "label": "Premium Website",
+      "description": "Unlimited pages, custom design, e-commerce integration",
+      "price": 6000
+    },
+    {
+      "id": "web-dev-maintenance",
+      "label": "Monthly Maintenance",
+      "description": "Updates, backups, security monitoring",
+      "price": 200
+    }
+  ],
+  "Local SEO": [
+    {
+      "id": "local-seo-audit",
+      "label": "Local SEO Audit",
+      "description": "Complete analysis of local search presence",
+      "price": 500
+    },
+    {
+      "id": "local-seo-optimization",
+      "label": "Local SEO Optimization",
+      "description": "Google Business Profile optimization and citations",
+      "price": 800
+    },
+    {
+      "id": "local-seo-monthly",
+      "label": "Monthly Local SEO",
+      "description": "Ongoing local SEO management and reporting",
+      "price": 400
+    },
+    {
+      "id": "local-seo-reviews",
+      "label": "Review Management",
+      "description": "Review generation and reputation management",
+      "price": 300
+    }
+  ],
+  "Web SEO": [
+    {
+      "id": "web-seo-audit",
+      "label": "SEO Technical Audit",
+      "description": "Complete technical SEO analysis and recommendations",
+      "price": 600
+    },
+    {
+      "id": "web-seo-onpage",
+      "label": "On-Page SEO",
+      "description": "Keyword optimization, meta tags, content optimization",
+      "price": 1000
+    },
+    {
+      "id": "web-seo-linkbuilding",
+      "label": "Link Building Campaign",
+      "description": "Strategic backlink acquisition and outreach",
+      "price": 1500
+    },
+    {
+      "id": "web-seo-monthly",
+      "label": "Monthly SEO Management",
+      "description": "Ongoing SEO optimization and reporting",
+      "price": 800
+    }
+  ],
+  "AI SEO": [
+    {
+      "id": "ai-seo-content",
+      "label": "AI Content Optimization",
+      "description": "AI-powered content creation and optimization",
+      "price": 1200
+    },
+    {
+      "id": "ai-seo-analysis",
+      "label": "AI SEO Analysis",
+      "description": "Advanced AI-driven SEO insights and recommendations",
+      "price": 900
+    },
+    {
+      "id": "ai-seo-automation",
+      "label": "SEO Automation Setup",
+      "description": "Automated SEO workflows and reporting",
+      "price": 2000
+    },
+    {
+      "id": "ai-seo-monthly",
+      "label": "Monthly AI SEO",
+      "description": "Ongoing AI-powered SEO management",
+      "price": 1000
+    }
+  ],
+  "Social Media": [
+    {
+      "id": "social-strategy",
+      "label": "Social Media Strategy",
+      "description": "Complete social media strategy and content plan",
+      "price": 800
+    },
+    {
+      "id": "social-content",
+      "label": "Content Creation",
+      "description": "Monthly social media content creation (20 posts)",
+      "price": 600
+    },
+    {
+      "id": "social-management",
+      "label": "Social Media Management",
+      "description": "Daily posting, engagement, and community management",
+      "price": 1000
+    },
+    {
+      "id": "social-ads",
+      "label": "Social Media Advertising",
+      "description": "Paid social media campaign management",
+      "price": 1500
+    }
+  ]
+}

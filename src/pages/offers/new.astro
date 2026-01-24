@@ -1,0 +1,12 @@
+---
+import Layout from '../../layouts/Layout.astro';
+import OfferBuilder from '../../components/OfferBuilder';
+import { requireUser } from '../../lib/auth/middleware';
+
+// Protect this route - all authenticated users can create offers
+const user = await requireUser(Astro.cookies);
+---
+
+<Layout title="Create New Offer">
+  <OfferBuilder client:load />
+</Layout>
