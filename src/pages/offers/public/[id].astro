@@ -100,6 +100,7 @@ validUntil.setDate(validUntil.getDate() + (offer.validityDays || 14));
                 </div>
                 <button
                   id="downloadPdf"
+                  data-offer-id={id}
                   class="px-4 py-2 bg-white text-[#0f6f7c] rounded-md hover:bg-white/90 font-semibold"
                 >
                   Λήψη PDF
@@ -390,7 +391,11 @@ validUntil.setDate(validUntil.getDate() + (offer.validityDays || 14));
       // PDF download
       const downloadBtn = document.getElementById('downloadPdf');
       downloadBtn?.addEventListener('click', async () => {
-        const offerId = '{id}';
+        const offerId = downloadBtn?.getAttribute('data-offer-id');
+        if (!offerId) {
+          alert('Offer ID not found');
+          return;
+        }
         try {
           const response = await fetch(`/api/pdf/public?offerId=${offerId}`, {
             method: 'POST',
