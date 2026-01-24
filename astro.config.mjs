@@ -2,9 +2,16 @@
 import { defineConfig } from 'astro/config';
 import tailwind from '@astrojs/tailwind';
 import react from '@astrojs/react';
+import vercel from '@astrojs/vercel/serverless';
 
 // https://astro.build/config
 export default defineConfig({
   integrations: [tailwind(), react()],
   output: 'server',
+  adapter: vercel({
+    // Enable serverless functions for API routes
+    functionPerRoute: false,
+    // Set max duration for functions (30 seconds for PDF generation)
+    maxDuration: 30,
+  }),
 });
