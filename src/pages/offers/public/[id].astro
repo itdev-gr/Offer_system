@@ -362,7 +362,7 @@ validUntil.setDate(validUntil.getDate() + (offer.validityDays || 14));
   </div>
 
   {!isExpired && (
-    <script>
+    <script define:vars={{ offerId: id }}>
       // Accordion functionality
       document.querySelectorAll('[data-accordion-toggle]').forEach((button) => {
         button.addEventListener('click', () => {
@@ -391,7 +391,6 @@ validUntil.setDate(validUntil.getDate() + (offer.validityDays || 14));
       // PDF download
       const downloadBtn = document.getElementById('downloadPdf');
       downloadBtn?.addEventListener('click', async () => {
-        const offerId = downloadBtn?.getAttribute('data-offer-id');
         if (!offerId) {
           alert('Offer ID not found');
           return;
