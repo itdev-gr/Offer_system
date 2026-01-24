@@ -107,25 +107,6 @@ validUntil.setDate(validUntil.getDate() + (offer.validityDays || 14));
             </div>
           </div>
 
-          <div class="grid grid-cols-1 md:grid-cols-2 gap-8 bg-white rounded-lg p-6 mb-10 border border-white/30 shadow">
-            <div>
-              <h3 class="text-xs font-semibold text-gray-500 uppercase mb-2">Prepared for</h3>
-              <p class="text-lg font-semibold text-gray-900">{offer.clientName}</p>
-              {offer.companyName && (
-                <p class="text-sm text-gray-600">{offer.companyName}</p>
-              )}
-            </div>
-            <div>
-              <h3 class="text-xs font-semibold text-gray-500 uppercase mb-2">Client</h3>
-              {offer.email && <p class="text-sm text-gray-700">{offer.email}</p>}
-              <p class="text-sm text-gray-700">
-                Πρόταση εκδόθηκε: {createdAt.toLocaleDateString()}
-              </p>
-              <p class="text-sm text-gray-700">
-                Πρόταση ισχύει έως: {validUntil.toLocaleDateString()}
-              </p>
-            </div>
-          </div>
 
           <section class="mb-10">
             <div class="relative overflow-hidden rounded-2xl bg-[#0b2f41] text-white shadow-lg">
