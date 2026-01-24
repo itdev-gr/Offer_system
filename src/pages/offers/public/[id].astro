@@ -21,6 +21,13 @@ const offer = offerDoc.data()!;
 const items = offer.items as OfferItem[];
 const totals = offer.totals;
 
+const itemsByCategory = items.reduce((acc: Record<string, OfferItem[]>, item) => {
+  const key = item.category || 'Other';
+  if (!acc[key]) acc[key] = [];
+  acc[key].push(item);
+  return acc;
+}, {});
+
 // Check if shareable link has expired
 const now = new Date();
 const expiresAt = offer.shareableLinkExpiresAt 
@@ -34,8 +41,8 @@ validUntil.setDate(validUntil.getDate() + (offer.validityDays || 14));
 ---
 
 <Layout title={`Offer ${id}`}>
-  <div class="min-h-screen bg-gray-50">
-    <div class="max-w-4xl mx-auto px-4 py-8">
+  <div class="min-h-screen bg-white">
+    <div class="max-w-5xl mx-auto px-6 py-10">
       {isExpired ? (
         <div class="bg-white rounded-lg shadow-md p-8 text-center">
           <div class="mb-4">
@@ -55,135 +62,215 @@ validUntil.setDate(validUntil.getDate() + (offer.validityDays || 14));
         </div>
       ) : (
         <>
-          <div class="mb-6">
-            <h1 class="text-3xl font-bold text-gray-900">Offer Details</h1>
+          <div class="flex items-start justify-between mb-10">
+            <div>
+              <p class="text-sm uppercase tracking-wide text-gray-500">Εξαγωγή PDF</p>
+              <h1 class="text-3xl sm:text-4xl font-bold text-gray-900 mt-2">
+                ΤΕΧΝΙΚΗ & ΟΙΚΟΝΟΜΙΚΗ ΠΡΟΤΑΣΗ
+              </h1>
+            </div>
+            <button
+              id="downloadPdf"
+              class="px-4 py-2 bg-indigo-600 text-white rounded-md hover:bg-indigo-700"
+            >
+              Λήψη PDF
+            </button>
           </div>
 
-          <div class="bg-white rounded-lg shadow-md p-8">
-            <div class="mb-6">
-              <div class="flex justify-between items-start mb-4">
-                <div>
-                  <h2 class="text-2xl font-bold text-gray-900">Offer #{id.slice(0, 8)}</h2>
-                  <p class="text-sm text-gray-500 mt-1">
-                    Created: {createdAt.toLocaleDateString()}
-                  </p>
-                </div>
-                <button
-                  id="downloadPdf"
-                  class="px-4 py-2 bg-indigo-600 text-white rounded-md hover:bg-indigo-700"
-                >
-                  Download PDF
-                </button>
+          <div class="grid grid-cols-1 md:grid-cols-2 gap-8 bg-gray-50 rounded-lg p-6 mb-10">
+            <div>
+              <h3 class="text-xs font-semibold text-gray-500 uppercase mb-2">Prepared for</h3>
+              <p class="text-lg font-semibold text-gray-900">{offer.clientName}</p>
+              {offer.companyName && (
+                <p class="text-sm text-gray-600">{offer.companyName}</p>
+              )}
+            </div>
+            <div>
+              <h3 class="text-xs font-semibold text-gray-500 uppercase mb-2">Client</h3>
+              {offer.email && <p class="text-sm text-gray-700">{offer.email}</p>}
+              <p class="text-sm text-gray-700">
+                Πρόταση εκδόθηκε: {createdAt.toLocaleDateString()}
+              </p>
+              <p class="text-sm text-gray-700">
+                Πρόταση ισχύει έως: {validUntil.toLocaleDateString()}
+              </p>
+            </div>
+          </div>
+
+          <section class="mb-10">
+            <h2 class="text-2xl font-bold text-gray-900">Έχετε την ιδέα;</h2>
+            <p class="text-lg text-gray-700 mt-2">Εμείς την υλοποιούμε.</p>
+            <p class="text-sm text-gray-600 mt-3">
+              Μια ολοκληρωμένη ομάδα από εξειδικευμένους συνεργάτες είναι δίπλα σας
+              κάθε στιγμή και συνεργάζεται για το καλύτερο αποτέλεσμα.
+            </p>
+          </section>
+
+          <section class="mb-10">
+            <h2 class="text-xl font-bold text-gray-900 mb-2">Ποιοί είμαστε;</h2>
+            <p class="text-sm text-gray-700">
+              Σας ευχαριστούμε για το ενδιαφέρον που εκδηλώσατε να συνεργαστείτε
+              μαζί μας. Στόχος μας είναι να παρέχουμε υπηρεσίες υψηλής ποιότητας,
+              με συνέπεια και έμφαση στην ταχύτητα, την ασφάλεια και τη
+              διαφορετικότητα.
+            </p>
+            <div class="grid grid-cols-1 md:grid-cols-2 gap-6 mt-6">
+              <div class="bg-gray-50 rounded-lg p-4">
+                <h3 class="text-sm font-semibold text-gray-900">Our Mission</h3>
+                <p class="text-sm text-gray-600 mt-2">
+                  Έχουμε αναπτύξει το δικό μας σύστημα διαχείρισης περιεχομένου
+                  δίνοντας έμφαση στην ταχύτητα και την ευκολία στη χρήση.
+                </p>
+              </div>
+              <div class="bg-gray-50 rounded-lg p-4">
+                <h3 class="text-sm font-semibold text-gray-900">Our Vision</h3>
+                <p class="text-sm text-gray-600 mt-2">
+                  Εξελίσσουμε συνεχώς τις υπηρεσίες μας με τις πιο σύγχρονες
+                  τεχνολογίες και λειτουργίες.
+                </p>
               </div>
             </div>
+          </section>
 
-            <div class="grid grid-cols-2 gap-6 mb-6">
-              <div>
-                <h3 class="text-sm font-medium text-gray-500 mb-1">Client</h3>
-                <p class="text-lg font-semibold">{offer.clientName}</p>
-                {offer.companyName && (
-                  <p class="text-sm text-gray-600">{offer.companyName}</p>
-                )}
-                {offer.email && (
-                  <p class="text-sm text-gray-600">{offer.email}</p>
-                )}
-              </div>
-              <div>
-                <h3 class="text-sm font-medium text-gray-500 mb-1">Validity</h3>
-                <p class="text-sm text-gray-900">
-                  Valid until: {validUntil.toLocaleDateString()}
-                </p>
-                <p class="text-sm text-gray-500">
-                  ({offer.validityDays} days)
-                </p>
-              </div>
-            </div>
-
-            <div class="border-t pt-6 mb-6">
-              <h3 class="text-lg font-semibold mb-4">Items</h3>
-              <div class="overflow-x-auto">
-                <table class="min-w-full divide-y divide-gray-200">
-                  <thead class="bg-gray-50">
-                    <tr>
-                      <th class="px-4 py-3 text-left text-xs font-medium text-gray-500 uppercase">
-                        Category
-                      </th>
-                      <th class="px-4 py-3 text-left text-xs font-medium text-gray-500 uppercase">
-                        Item
-                      </th>
-                      <th class="px-4 py-3 text-right text-xs font-medium text-gray-500 uppercase">
-                        Qty
-                      </th>
-                      <th class="px-4 py-3 text-right text-xs font-medium text-gray-500 uppercase">
-                        Unit Price
-                      </th>
-                      <th class="px-4 py-3 text-right text-xs font-medium text-gray-500 uppercase">
-                        Total
-                      </th>
-                    </tr>
-                  </thead>
-                  <tbody class="bg-white divide-y divide-gray-200">
-                    {items.map((item, index) => (
-                      <tr key={index}>
-                        <td class="px-4 py-3 text-sm text-gray-900">{item.category}</td>
-                        <td class="px-4 py-3">
-                          <p class="text-sm font-medium text-gray-900">{item.label}</p>
-                          <p class="text-xs text-gray-500">{item.description}</p>
-                        </td>
-                        <td class="px-4 py-3 text-sm text-gray-900 text-right">
-                          {item.qty}
-                        </td>
-                        <td class="px-4 py-3 text-sm text-gray-900 text-right">
-                          {formatCurrency(item.unitPrice, offer.currency)}
-                        </td>
-                        <td class="px-4 py-3 text-sm font-semibold text-gray-900 text-right">
-                          {formatCurrency(item.lineTotal, offer.currency)}
-                        </td>
-                      </tr>
+          <section class="mb-10">
+            <h2 class="text-xl font-bold text-gray-900 mb-4">Δυνατότητες - Υπηρεσίες</h2>
+            <div class="space-y-4">
+              {Object.entries(itemsByCategory).map(([category, categoryItems]) => (
+                <div class="border border-gray-200 rounded-lg p-4" key={category}>
+                  <div class="flex items-center justify-between">
+                    <h3 class="text-sm font-semibold text-gray-900">{category}</h3>
+                  </div>
+                  <ul class="mt-3 space-y-2">
+                    {categoryItems.map((item) => (
+                      <li class="text-sm text-gray-700" key={item.itemId}>
+                        {item.label}
+                        {item.description && (
+                          <span class="text-xs text-gray-500"> — {item.description}</span>
+                        )}
+                      </li>
                     ))}
-                  </tbody>
-                </table>
-              </div>
+                  </ul>
+                </div>
+              ))}
+            </div>
+          </section>
+
+          <section class="mb-10">
+            <h2 class="text-xl font-bold text-gray-900 mb-4">Οικονομική προσφορά</h2>
+            <div class="overflow-x-auto bg-white border border-gray-200 rounded-lg">
+              <table class="min-w-full divide-y divide-gray-200">
+                <thead class="bg-gray-50">
+                  <tr>
+                    <th class="px-4 py-3 text-left text-xs font-medium text-gray-500 uppercase">
+                      Κατηγορία
+                    </th>
+                    <th class="px-4 py-3 text-left text-xs font-medium text-gray-500 uppercase">
+                      Υπηρεσία
+                    </th>
+                    <th class="px-4 py-3 text-right text-xs font-medium text-gray-500 uppercase">
+                      Ποσότητα
+                    </th>
+                    <th class="px-4 py-3 text-right text-xs font-medium text-gray-500 uppercase">
+                      Τιμή
+                    </th>
+                    <th class="px-4 py-3 text-right text-xs font-medium text-gray-500 uppercase">
+                      Σύνολο
+                    </th>
+                  </tr>
+                </thead>
+                <tbody class="bg-white divide-y divide-gray-200">
+                  {items.map((item) => (
+                    <tr key={item.itemId}>
+                      <td class="px-4 py-3 text-sm text-gray-900">{item.category}</td>
+                      <td class="px-4 py-3">
+                        <p class="text-sm font-medium text-gray-900">{item.label}</p>
+                        {item.description && (
+                          <p class="text-xs text-gray-500">{item.description}</p>
+                        )}
+                      </td>
+                      <td class="px-4 py-3 text-sm text-gray-900 text-right">
+                        {item.qty}
+                      </td>
+                      <td class="px-4 py-3 text-sm text-gray-900 text-right">
+                        {formatCurrency(item.unitPrice, offer.currency)}
+                      </td>
+                      <td class="px-4 py-3 text-sm font-semibold text-gray-900 text-right">
+                        {formatCurrency(item.lineTotal, offer.currency)}
+                      </td>
+                    </tr>
+                  ))}
+                </tbody>
+              </table>
             </div>
 
-            <div class="border-t pt-6">
-              <div class="flex justify-end">
-                <div class="w-64 space-y-2">
+            <div class="flex justify-end mt-4">
+              <div class="w-64 space-y-2">
+                <div class="flex justify-between text-sm">
+                  <span class="text-gray-600">Subtotal:</span>
+                  <span class="text-gray-900">{formatCurrency(totals.subtotal, offer.currency)}</span>
+                </div>
+                {offer.discountPercent > 0 && (
+                  <div class="flex justify-between text-sm text-green-600">
+                    <span>Discount ({offer.discountPercent}%):</span>
+                    <span>-{formatCurrency(totals.discountAmount, offer.currency)}</span>
+                  </div>
+                )}
+                <div class="flex justify-between text-sm">
+                  <span class="text-gray-600">Taxable:</span>
+                  <span class="text-gray-900">{formatCurrency(totals.taxable, offer.currency)}</span>
+                </div>
+                {offer.vatPercent > 0 && (
                   <div class="flex justify-between text-sm">
-                    <span class="text-gray-600">Subtotal:</span>
-                    <span class="text-gray-900">{formatCurrency(totals.subtotal, offer.currency)}</span>
+                    <span class="text-gray-600">VAT ({offer.vatPercent}%):</span>
+                    <span class="text-gray-900">{formatCurrency(totals.vatAmount, offer.currency)}</span>
                   </div>
-                  {offer.discountPercent > 0 && (
-                    <div class="flex justify-between text-sm text-green-600">
-                      <span>Discount ({offer.discountPercent}%):</span>
-                      <span>-{formatCurrency(totals.discountAmount, offer.currency)}</span>
-                    </div>
-                  )}
-                  <div class="flex justify-between text-sm">
-                    <span class="text-gray-600">Taxable:</span>
-                    <span class="text-gray-900">{formatCurrency(totals.taxable, offer.currency)}</span>
-                  </div>
-                  {offer.vatPercent > 0 && (
-                    <div class="flex justify-between text-sm">
-                      <span class="text-gray-600">VAT ({offer.vatPercent}%):</span>
-                      <span class="text-gray-900">{formatCurrency(totals.vatAmount, offer.currency)}</span>
-                    </div>
-                  )}
-                  <div class="flex justify-between text-lg font-bold border-t pt-2">
-                    <span>Total:</span>
-                    <span>{formatCurrency(totals.total, offer.currency)}</span>
-                  </div>
+                )}
+                <div class="flex justify-between text-lg font-bold border-t pt-2">
+                  <span>Total:</span>
+                  <span>{formatCurrency(totals.total, offer.currency)}</span>
                 </div>
               </div>
             </div>
+          </section>
 
-            {offer.notes && (
-              <div class="border-t pt-6 mt-6">
-                <h3 class="text-sm font-medium text-gray-500 mb-2">Notes</h3>
-                <p class="text-sm text-gray-900 whitespace-pre-wrap">{offer.notes}</p>
+          <section class="mb-10">
+            <h2 class="text-xl font-bold text-gray-900 mb-4">Τρόποι πληρωμής & συνεργασίας</h2>
+            <div class="grid grid-cols-1 md:grid-cols-2 gap-6">
+              <div class="border border-gray-200 rounded-lg p-4">
+                <h3 class="text-sm font-semibold text-gray-900 mb-2">01. Αποστολή σύμβασης</h3>
+                <p class="text-sm text-gray-600">
+                  Αποστολή υπογεγραμμένης σύμβασης με υπηρεσίες, αξία επένδυσης και
+                  προκαταβολή 40%.
+                </p>
               </div>
-            )}
-          </div>
+              <div class="border border-gray-200 rounded-lg p-4">
+                <h3 class="text-sm font-semibold text-gray-900 mb-2">02. Κατασκευή</h3>
+                <p class="text-sm text-gray-600">
+                  Ξεκινάμε την κατασκευή και ανεβάζουμε demo. Ακολουθεί πληρωμή 25%.
+                </p>
+              </div>
+              <div class="border border-gray-200 rounded-lg p-4">
+                <h3 class="text-sm font-semibold text-gray-900 mb-2">03. Εκπαίδευση</h3>
+                <p class="text-sm text-gray-600">
+                  Παράδοση έργου και εκπαίδευση για όλες τις λειτουργίες. Πληρωμή 25%.
+                </p>
+              </div>
+              <div class="border border-gray-200 rounded-lg p-4">
+                <h3 class="text-sm font-semibold text-gray-900 mb-2">04. Ολοκλήρωση</h3>
+                <p class="text-sm text-gray-600">
+                  Δημοσίευση online και τελικός έλεγχος. Καταβάλλεται η τελευταία
+                  δόση 10%.
+                </p>
+              </div>
+            </div>
+          </section>
+
+          {offer.notes && (
+            <section class="border-t pt-6 mt-8">
+              <h3 class="text-sm font-medium text-gray-500 mb-2">Σημειώσεις</h3>
+              <p class="text-sm text-gray-900 whitespace-pre-wrap">{offer.notes}</p>
+            </section>
+          )}
         </>
       )}
     </div>
