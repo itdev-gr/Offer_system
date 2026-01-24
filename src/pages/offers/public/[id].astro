@@ -362,7 +362,7 @@ validUntil.setDate(validUntil.getDate() + (offer.validityDays || 14));
   </div>
 
   {!isExpired && (
-    <script define:vars={{ offerId: id }}>
+    <script set:html={`
       // Accordion functionality
       document.querySelectorAll('[data-accordion-toggle]').forEach((button) => {
         button.addEventListener('click', () => {
@@ -382,21 +382,22 @@ validUntil.setDate(validUntil.getDate() + (offer.validityDays || 14));
 
       // Initialize all accordions as open
       document.querySelectorAll('.accordion-content').forEach((content) => {
-        (content as HTMLElement).style.display = 'block';
+        content.style.display = 'block';
       });
       document.querySelectorAll('.accordion-icon').forEach((icon) => {
-        (icon as HTMLElement).style.transform = 'rotate(180deg)';
+        icon.style.transform = 'rotate(180deg)';
       });
 
       // PDF download
       const downloadBtn = document.getElementById('downloadPdf');
       downloadBtn?.addEventListener('click', async () => {
+        const offerId = downloadBtn?.getAttribute('data-offer-id');
         if (!offerId) {
           alert('Offer ID not found');
           return;
         }
         try {
-          const response = await fetch(`/api/pdf/public?offerId=${offerId}`, {
+          const response = await fetch('/api/pdf/public?offerId=' + encodeURIComponent(offerId), {
             method: 'POST',
           });
 
@@ -409,15 +410,15 @@ validUntil.setDate(validUntil.getDate() + (offer.validityDays || 14));
           const url = window.URL.createObjectURL(blob);
           const a = document.createElement('a');
           a.href = url;
-          a.download = `offer-${offerId.slice(0, 8)}.pdf`;
+          a.download = 'offer-' + offerId.slice(0, 8) + '.pdf';
           document.body.appendChild(a);
           a.click();
           window.URL.revokeObjectURL(url);
           document.body.removeChild(a);
         } catch (error) {
-          alert('Failed to download PDF: ' + (error as Error).message);
+          alert('Failed to download PDF: ' + error.message);
         }
       });
-    </script>
+    `} />
   )}
 </Layout>
