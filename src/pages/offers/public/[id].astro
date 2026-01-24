@@ -41,6 +41,14 @@ validUntil.setDate(validUntil.getDate() + (offer.validityDays || 14));
 ---
 
 <Layout title={`Offer ${id}`}>
+  <style>
+    .accordion-content {
+      transition: all 0.3s ease;
+    }
+    .accordion-icon {
+      transition: transform 0.3s ease;
+    }
+  </style>
   <div class="min-h-screen bg-[#5aa9a5]">
     <div class="max-w-5xl mx-auto px-6 py-10">
       {isExpired ? (
@@ -170,22 +178,38 @@ validUntil.setDate(validUntil.getDate() + (offer.validityDays || 14));
 
           <section class="mb-10 bg-white rounded-xl p-6 shadow">
             <h2 class="text-xl font-bold text-gray-900 mb-4">Δυνατότητες - Υπηρεσίες</h2>
-            <div class="space-y-4">
-              {Object.entries(itemsByCategory).map(([category, categoryItems]) => (
-                <div class="border border-gray-200 rounded-lg p-4" key={category}>
-                  <div class="flex items-center justify-between">
-                    <h3 class="text-sm font-semibold text-gray-900">{category}</h3>
+            <div class="space-y-3">
+              {Object.entries(itemsByCategory).map(([category, categoryItems], index) => (
+                <div class="accordion-item" key={category}>
+                  <button
+                    class="accordion-header w-full bg-[#0b2f41] text-white px-4 py-3 flex items-center justify-between hover:bg-[#0f3a4f] transition-colors"
+                    data-accordion-toggle={`accordion-${index}`}
+                  >
+                    <span class="font-medium">{category}</span>
+                    <svg
+                      class="accordion-icon w-4 h-4 transition-transform"
+                      fill="none"
+                      stroke="currentColor"
+                      viewBox="0 0 24 24"
+                    >
+                      <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M5 15l7-7 7 7" />
+                    </svg>
+                  </button>
+                  <div
+                    class="accordion-content border border-gray-200 border-t-0 bg-white"
+                    id={`accordion-${index}`}
+                  >
+                    <ul class="p-4 space-y-2">
+                      {categoryItems.map((item) => (
+                        <li class="text-sm text-gray-700 list-disc list-inside" key={item.itemId}>
+                          {item.label}
+                          {item.description && (
+                            <span class="text-xs text-gray-500"> — {item.description}</span>
+                          )}
+                        </li>
+                      ))}
+                    </ul>
                   </div>
-                  <ul class="mt-3 space-y-2">
-                    {categoryItems.map((item) => (
-                      <li class="text-sm text-gray-700" key={item.itemId}>
-                        {item.label}
-                        {item.description && (
-                          <span class="text-xs text-gray-500"> — {item.description}</span>
-                        )}
-                      </li>
-                    ))}
-                  </ul>
                 </div>
               ))}
             </div>
@@ -314,6 +338,32 @@ validUntil.setDate(validUntil.getDate() + (offer.validityDays || 14));
 
   {!isExpired && (
     <script>
+      // Accordion functionality
+      document.querySelectorAll('[data-accordion-toggle]').forEach((button) => {
+        button.addEventListener('click', () => {
+          const targetId = button.getAttribute('data-accordion-toggle');
+          const content = document.getElementById(targetId);
+          const icon = button.querySelector('.accordion-icon');
+          
+          if (content) {
+            const isOpen = content.style.display !== 'none';
+            content.style.display = isOpen ? 'none' : 'block';
+            if (icon) {
+              icon.style.transform = isOpen ? 'rotate(0deg)' : 'rotate(180deg)';
+            }
+          }
+        });
+      });
+
+      // Initialize all accordions as open
+      document.querySelectorAll('.accordion-content').forEach((content) => {
+        (content as HTMLElement).style.display = 'block';
+      });
+      document.querySelectorAll('.accordion-icon').forEach((icon) => {
+        (icon as HTMLElement).style.transform = 'rotate(180deg)';
+      });
+
+      // PDF download
       const downloadBtn = document.getElementById('downloadPdf');
       downloadBtn?.addEventListener('click', async () => {
         const offerId = '{id}';
