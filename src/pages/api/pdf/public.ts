@@ -100,7 +100,7 @@ export const POST: APIRoute = async ({ request, url }) => {
     const page = await browser.newPage();
     await page.setContent(html, { waitUntil: 'networkidle0', timeout: 30000 });
     // Wait a bit more for Tailwind CDN to fully process
-    await page.waitForTimeout(1000);
+    await new Promise(resolve => setTimeout(resolve, 1000));
 
     // Get the full height of the content
     const bodyHeight = await page.evaluate(() => {
