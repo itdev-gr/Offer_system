@@ -3,11 +3,19 @@ import type { OfferItem } from '../lib/money';
 import catalogData from '../data/catalog.json';
 import OfferSummary from './OfferSummary';
 
+interface SubProduct {
+  id: string;
+  label: string;
+  description: string;
+  price: number;
+}
+
 interface CatalogItem {
   id: string;
   label: string;
   description: string;
   price: number;
+  subProducts?: SubProduct[];
 }
 
 type Catalog = Record<string, CatalogItem[]>;
@@ -32,6 +40,19 @@ export default function OfferBuilder() {
   const [error, setError] = useState('');
   const [isAdmin, setIsAdmin] = useState(false);
   const [isLoadingCatalog, setIsLoadingCatalog] = useState(true);
+  const [expandedItems, setExpandedItems] = useState<Set<string>>(new Set());
+  const [selectedSubProducts, setSelectedSubProducts] = useState<Map<string, Set<string>>>(new Map());
+
+  const toggleItemExpanded = (category: string, itemId: string) => {
+    const key = `${category}-${itemId}`;
+    const newExpanded = new Set(expandedItems);
+    if (newExpanded.has(key)) {
+      newExpanded.delete(key);
+    } else {
+      newExpanded.add(key);
+    }
+    setExpandedItems(newExpanded);
+  };
 
   const handleItemToggle = (category: string, item: CatalogItem) => {
     const existingIndex = selectedItems.findIndex(
@@ -39,8 +60,12 @@ export default function OfferBuilder() {
     );
 
     if (existingIndex >= 0) {
-      // Remove item
+      // Remove item and its sub-products
       setSelectedItems(selectedItems.filter((_, i) => i !== existingIndex));
+      const key = `${category}-${item.id}`;
+      const newSelectedSubProducts = new Map(selectedSubProducts);
+      newSelectedSubProducts.delete(key);
+      setSelectedSubProducts(newSelectedSubProducts);
     } else {
       // Add item
       const newItem: OfferItem = {
@@ -54,6 +79,50 @@ export default function OfferBuilder() {
       };
       setSelectedItems([...selectedItems, newItem]);
     }
+  };
+
+  const handleSubProductToggle = (category: string, itemId: string, subProduct: SubProduct) => {
+    const key = `${category}-${itemId}`;
+    const newSelectedSubProducts = new Map(selectedSubProducts);
+    
+    if (!newSelectedSubProducts.has(key)) {
+      newSelectedSubProducts.set(key, new Set());
+    }
+    
+    const subProductsSet = newSelectedSubProducts.get(key)!;
+    if (subProductsSet.has(subProduct.id)) {
+      subProductsSet.delete(subProduct.id);
+    } else {
+      subProductsSet.add(subProduct.id);
+    }
+    
+    setSelectedSubProducts(newSelectedSubProducts);
+    
+    // Update the main item's lineTotal
+    const itemIndex = selectedItems.findIndex(
+      (si) => si.itemId === itemId && si.category === category
+    );
+    
+    if (itemIndex >= 0) {
+      const item = selectedItems[itemIndex];
+      const selectedSubs = Array.from(subProductsSet).map(subId => {
+        const catalogItem = catalog[category]?.find(i => i.id === itemId);
+        return catalogItem?.subProducts?.find(sp => sp.id === subId);
+      }).filter(Boolean) as SubProduct[];
+      
+      const subProductsTotal = selectedSubs.reduce((sum, sp) => sum + sp.price, 0);
+      const newItems = [...selectedItems];
+      newItems[itemIndex] = {
+        ...item,
+        lineTotal: item.unitPrice + subProductsTotal,
+      };
+      setSelectedItems(newItems);
+    }
+  };
+
+  const isSubProductSelected = (category: string, itemId: string, subProductId: string): boolean => {
+    const key = `${category}-${itemId}`;
+    return selectedSubProducts.get(key)?.has(subProductId) || false;
   };
 
   const isItemSelected = (category: string, itemId: string) => {
@@ -229,31 +298,116 @@ export default function OfferBuilder() {
                   <p className="text-gray-500 text-center py-8">Loading products...</p>
                 ) : catalog[selectedCategory] && catalog[selectedCategory].length > 0 ? (
                 <div className="space-y-4">
-                  {catalog[selectedCategory].map((item) => (
-                    <label
-                      key={item.id}
-                      className="flex items-start space-x-3 p-4 border border-gray-200 rounded-lg hover:bg-gray-50 cursor-pointer"
-                    >
-                      <input
-                        type="checkbox"
-                        checked={isItemSelected(selectedCategory, item.id)}
-                        onChange={() => handleItemToggle(selectedCategory, item)}
-                        className="mt-1 h-4 w-4 text-indigo-600 focus:ring-indigo-500 border-gray-300 rounded"
-                      />
-                      <div className="flex-1">
-                        <p className="font-medium text-gray-900">{item.label}</p>
-                        <p className="text-sm text-gray-600 mt-1">
-                          {item.description}
-                        </p>
-                        <p className="text-sm font-semibold text-indigo-600 mt-2">
-                          {new Intl.NumberFormat('en-US', {
-                            style: 'currency',
-                            currency: 'EUR',
-                          }).format(item.price)}
-                        </p>
+                  {catalog[selectedCategory].map((item) => {
+                    const itemKey = `${selectedCategory}-${item.id}`;
+                    const isExpanded = expandedItems.has(itemKey);
+                    const hasSubProducts = item.subProducts && item.subProducts.length > 0;
+                    const selectedSubs = selectedSubProducts.get(itemKey);
+                    const subProductsTotal = item.subProducts
+                      ?.filter(sp => selectedSubs?.has(sp.id))
+                      .reduce((sum, sp) => sum + sp.price, 0) || 0;
+                    const totalPrice = item.price + subProductsTotal;
+                    const isSelected = isItemSelected(selectedCategory, item.id);
+                    
+                    return (
+                      <div key={item.id} className="border border-gray-200 rounded-lg overflow-hidden">
+                        <label className="flex items-start space-x-3 p-4 hover:bg-gray-50 cursor-pointer">
+                          <input
+                            type="checkbox"
+                            checked={isSelected}
+                            onChange={() => handleItemToggle(selectedCategory, item)}
+                            className="mt-1 h-4 w-4 text-indigo-600 focus:ring-indigo-500 border-gray-300 rounded"
+                          />
+                          <div className="flex-1">
+                            <div className="flex items-center justify-between">
+                              <div className="flex-1">
+                                <p className="font-medium text-gray-900">{item.label}</p>
+                                <p className="text-sm text-gray-600 mt-1">
+                                  {item.description}
+                                </p>
+                                <div className="flex items-center gap-2 mt-2">
+                                  <p className="text-sm font-semibold text-indigo-600">
+                                    {new Intl.NumberFormat('en-US', {
+                                      style: 'currency',
+                                      currency: 'EUR',
+                                    }).format(item.price)}
+                                  </p>
+                                  {isSelected && subProductsTotal > 0 && (
+                                    <>
+                                      <span className="text-gray-400">+</span>
+                                      <p className="text-sm text-gray-600">
+                                        {new Intl.NumberFormat('en-US', {
+                                          style: 'currency',
+                                          currency: 'EUR',
+                                        }).format(subProductsTotal)} (extras)
+                                      </p>
+                                      <span className="text-gray-400">=</span>
+                                      <p className="text-sm font-bold text-indigo-700">
+                                        {new Intl.NumberFormat('en-US', {
+                                          style: 'currency',
+                                          currency: 'EUR',
+                                        }).format(totalPrice)}
+                                      </p>
+                                    </>
+                                  )}
+                                </div>
+                              </div>
+                              {hasSubProducts && (
+                                <button
+                                  type="button"
+                                  onClick={(e) => {
+                                    e.stopPropagation();
+                                    toggleItemExpanded(selectedCategory, item.id);
+                                  }}
+                                  className="ml-4 text-indigo-600 hover:text-indigo-700"
+                                >
+                                  <svg
+                                    className={`w-5 h-5 transition-transform ${isExpanded ? 'rotate-90' : ''}`}
+                                    fill="none"
+                                    stroke="currentColor"
+                                    viewBox="0 0 24 24"
+                                  >
+                                    <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M9 5l7 7-7 7" />
+                                  </svg>
+                                </button>
+                              )}
+                            </div>
+                          </div>
+                        </label>
+                        {isExpanded && hasSubProducts && isSelected && (
+                          <div className="bg-gray-50 border-t border-gray-200 p-4">
+                            <p className="text-sm font-medium text-gray-700 mb-3">Extra Services:</p>
+                            <div className="space-y-2 ml-6">
+                              {item.subProducts.map((subProduct) => (
+                                <label
+                                  key={subProduct.id}
+                                  className="flex items-start space-x-2 cursor-pointer"
+                                  onClick={(e) => e.stopPropagation()}
+                                >
+                                  <input
+                                    type="checkbox"
+                                    checked={isSubProductSelected(selectedCategory, item.id, subProduct.id)}
+                                    onChange={() => handleSubProductToggle(selectedCategory, item.id, subProduct)}
+                                    className="mt-1 h-4 w-4 text-indigo-600 focus:ring-indigo-500 border-gray-300 rounded"
+                                  />
+                                  <div className="flex-1">
+                                    <p className="text-sm font-medium text-gray-900">{subProduct.label}</p>
+                                    <p className="text-xs text-gray-600">{subProduct.description}</p>
+                                    <p className="text-xs font-semibold text-indigo-600 mt-1">
+                                      +{new Intl.NumberFormat('en-US', {
+                                        style: 'currency',
+                                        currency: 'EUR',
+                                      }).format(subProduct.price)}
+                                    </p>
+                                  </div>
+                                </label>
+                              ))}
+                            </div>
+                          </div>
+                        )}
                       </div>
-                    </label>
-                  ))}
+                    );
+                  })}
                 </div>
                 ) : (
                   <p className="text-gray-500 text-center py-8">No products in this category.</p>
