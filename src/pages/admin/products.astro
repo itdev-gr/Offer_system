@@ -225,23 +225,37 @@ const admin = await requireAdmin(Astro.cookies);
 
     // Load catalog
     async function loadCatalog() {
+      const container = document.getElementById('productsContainer')!;
+      container.innerHTML = '<p class="text-gray-500 text-center py-8">Loading products...</p>';
+      
       try {
+        console.log('Fetching catalog from /api/catalog...');
         const response = await fetch('/api/catalog');
+        console.log('Response status:', response.status, response.statusText);
+        
         if (!response.ok) {
           const errorData = await response.json().catch(() => ({ error: 'Unknown error' }));
+          console.error('API error:', errorData);
           throw new Error(errorData.error || `HTTP ${response.status}: Failed to load catalog`);
         }
+        
         const data = await response.json();
+        console.log('Catalog data received:', data);
         catalog = data || {};
-        console.log('Catalog loaded:', catalog);
+        console.log('Catalog assigned:', catalog, 'Keys:', Object.keys(catalog));
+        
+        if (!catalog || typeof catalog !== 'object') {
+          throw new Error('Invalid catalog data received');
+        }
+        
         renderCatalog();
       } catch (error: any) {
         console.error('Error loading catalog:', error);
-        const container = document.getElementById('productsContainer')!;
         container.innerHTML = `
           <div class="bg-red-50 border border-red-200 rounded-lg p-6">
             <p class="text-red-800 font-semibold mb-2">Failed to load products</p>
             <p class="text-red-600 text-sm">${escapeHtml(error.message || 'Unknown error')}</p>
+            <p class="text-red-500 text-xs mt-2">Check browser console for details</p>
             <button
               onclick="loadCatalog()"
               class="mt-4 px-4 py-2 bg-red-600 text-white rounded-md hover:bg-red-700 text-sm"
