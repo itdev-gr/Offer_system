@@ -7,6 +7,7 @@ interface SubProduct {
   label: string;
   description: string;
   price: number;
+  subProducts?: SubProduct[]; // Nested sub-products
 }
 
 interface CatalogItem {
@@ -119,12 +120,27 @@ export const POST: APIRoute = async ({ request, cookies }) => {
             }
           );
         }
-        // Validate sub-products if they exist
+        // Validate sub-products if they exist (recursive)
         if (item.subProducts && Array.isArray(item.subProducts)) {
-          for (const subProduct of item.subProducts) {
+          const validateSubProduct = (subProduct: SubProduct, path: string): string | null => {
             if (!subProduct.id || !subProduct.label || typeof subProduct.price !== 'number') {
+              return `Invalid sub-product at "${path}": id, label, and price are required`;
+            }
+            // Validate nested sub-products recursively
+            if (subProduct.subProducts && Array.isArray(subProduct.subProducts)) {
+              for (const nestedSubProduct of subProduct.subProducts) {
+                const nestedError = validateSubProduct(nestedSubProduct, `${path}.${nestedSubProduct.id}`);
+                if (nestedError) return nestedError;
+              }
+            }
+            return null;
+          };
+          
+          for (const subProduct of item.subProducts) {
+            const error = validateSubProduct(subProduct, `item.${item.id}.${subProduct.id}`);
+            if (error) {
               return new Response(
-                JSON.stringify({ error: `Invalid sub-product in item "${item.id}": id, label, and price are required` }),
+                JSON.stringify({ error }),
                 {
                   status: 400,
                   headers: { 'Content-Type': 'application/json' },
@@ -329,13 +345,53 @@ export const DELETE: APIRoute = async ({ request, cookies, url }) => {
   }
 };
 
-// PATCH - Manage sub-products (add, update, delete) (admin only)
+// Helper function to find and update nested sub-product
+function findAndUpdateSubProduct(
+  subProducts: SubProduct[],
+  targetId: string,
+  parentId: string | null,
+  action: 'add' | 'update' | 'delete',
+  newSubProduct?: SubProduct
+): boolean {
+  for (let i = 0; i < subProducts.length; i++) {
+    const sp = subProducts[i];
+    
+    // If this is the target sub-product
+    if (sp.id === targetId && (parentId === null || parentId === sp.id)) {
+      if (action === 'delete') {
+        subProducts.splice(i, 1);
+        return true;
+      } else if (action === 'update' || action === 'add') {
+        if (newSubProduct) {
+          // Preserve nested sub-products if updating
+          if (action === 'update' && sp.subProducts) {
+            newSubProduct.subProducts = sp.subProducts;
+          }
+          subProducts[i] = newSubProduct;
+          return true;
+        }
+      }
+    }
+    
+    // If we're looking for a nested sub-product and this has children
+    if (parentId === sp.id && sp.subProducts) {
+      if (findAndUpdateSubProduct(sp.subProducts, targetId, null, action, newSubProduct)) {
+        return true;
+      }
+    }
+  }
+  
+  return false;
+}
+
+// PATCH - Manage sub-products (add, update, delete) including nested (admin only)
 export const PATCH: APIRoute = async ({ request, cookies, url }) => {
   try {
     await requireAdmin(cookies);
     const category = url.searchParams.get('category');
     const itemId = url.searchParams.get('itemId');
     const subProductId = url.searchParams.get('subProductId');
+    const parentSubProductId = url.searchParams.get('parentSubProductId'); // For nested sub-products
     const action = url.searchParams.get('action') || 'add'; // add, update, delete
     
     if (!category || !itemId) {
@@ -392,7 +448,7 @@ export const PATCH: APIRoute = async ({ request, cookies, url }) => {
     }
     
     if (action === 'delete') {
-      // Delete sub-product
+      // Delete sub-product (or nested sub-product)
       if (!subProductId) {
         return new Response(
           JSON.stringify({ error: 'subProductId is required for delete action' }),
@@ -403,7 +459,26 @@ export const PATCH: APIRoute = async ({ request, cookies, url }) => {
         );
       }
       
-      item.subProducts = item.subProducts.filter(sp => sp.id !== subProductId);
+      if (parentSubProductId) {
+        // Delete nested sub-product
+        const parentSubProduct = item.subProducts.find(sp => sp.id === parentSubProductId);
+        if (!parentSubProduct) {
+          return new Response(
+            JSON.stringify({ error: `Parent sub-product "${parentSubProductId}" not found` }),
+            {
+              status: 404,
+              headers: { 'Content-Type': 'application/json' },
+            }
+          );
+        }
+        if (!parentSubProduct.subProducts) {
+          parentSubProduct.subProducts = [];
+        }
+        parentSubProduct.subProducts = parentSubProduct.subProducts.filter(sp => sp.id !== subProductId);
+      } else {
+        // Delete top-level sub-product
+        item.subProducts = item.subProducts.filter(sp => sp.id !== subProductId);
+      }
     } else {
       // Add or update sub-product
       const body = await request.json();
@@ -419,13 +494,39 @@ export const PATCH: APIRoute = async ({ request, cookies, url }) => {
         );
       }
       
-      const subProductIndex = item.subProducts.findIndex(sp => sp.id === subProduct.id);
-      if (subProductIndex >= 0) {
-        // Update existing sub-product
-        item.subProducts[subProductIndex] = subProduct;
+      if (parentSubProductId) {
+        // Add/update nested sub-product
+        const parentSubProduct = item.subProducts.find(sp => sp.id === parentSubProductId);
+        if (!parentSubProduct) {
+          return new Response(
+            JSON.stringify({ error: `Parent sub-product "${parentSubProductId}" not found` }),
+            {
+              status: 404,
+              headers: { 'Content-Type': 'application/json' },
+            }
+          );
+        }
+        if (!parentSubProduct.subProducts) {
+          parentSubProduct.subProducts = [];
+        }
+        const nestedIndex = parentSubProduct.subProducts.findIndex(sp => sp.id === subProduct.id);
+        if (nestedIndex >= 0) {
+          // Update existing nested sub-product
+          parentSubProduct.subProducts[nestedIndex] = subProduct;
+        } else {
+          // Add new nested sub-product
+          parentSubProduct.subProducts.push(subProduct);
+        }
       } else {
-        // Add new sub-product
-        item.subProducts.push(subProduct);
+        // Add/update top-level sub-product
+        const subProductIndex = item.subProducts.findIndex(sp => sp.id === subProduct.id);
+        if (subProductIndex >= 0) {
+          // Update existing sub-product
+          item.subProducts[subProductIndex] = subProduct;
+        } else {
+          // Add new sub-product
+          item.subProducts.push(subProduct);
+        }
       }
     }
     
