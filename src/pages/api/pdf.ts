@@ -2,7 +2,8 @@ import type { APIRoute } from 'astro';
 import { requireUser } from '../../lib/auth/middleware';
 import { getAdminDb } from '../../lib/firebase/admin';
 import { renderPdfTemplate } from '../../lib/pdf-template';
-import { chromium } from 'playwright';
+import puppeteer from 'puppeteer-core';
+import chromium from '@sparticuz/chromium';
 import type { OfferItem } from '../../lib/money';
 
 export const POST: APIRoute = async ({ request, cookies, url }) => {
@@ -76,10 +77,17 @@ export const POST: APIRoute = async ({ request, cookies, url }) => {
       validUntil,
     });
 
-    // Generate PDF using Playwright
-    const browser = await chromium.launch();
+    // Generate PDF using Puppeteer with Chromium for serverless
+    chromium.setGraphicsMode(false);
+    const browser = await puppeteer.launch({
+      args: chromium.args,
+      defaultViewport: chromium.defaultViewport,
+      executablePath: await chromium.executablePath(),
+      headless: chromium.headless,
+    });
+    
     const page = await browser.newPage();
-    await page.setContent(html, { waitUntil: 'networkidle' });
+    await page.setContent(html, { waitUntil: 'networkidle0' });
 
     const pdf = await page.pdf({
       format: 'A4',
