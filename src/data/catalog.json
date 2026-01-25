@@ -149,6 +149,102 @@
           "price": 350
         },
         {
+          "id": "feature-phone-calls",
+          "label": "Περισσότερα τηλεφωνήματα",
+          "description": "",
+          "price": 0
+        },
+        {
+          "id": "feature-messages-forms",
+          "label": "Περισσότερα μηνύματα/φόρμες",
+          "description": "",
+          "price": 0
+        },
+        {
+          "id": "feature-visits",
+          "label": "Περισσότερες επισκέψεις",
+          "description": "",
+          "price": 0
+        },
+        {
+          "id": "feature-maps-directions",
+          "label": "Περισσότερες οδηγίες Maps",
+          "description": "",
+          "price": 0
+        },
+        {
+          "id": "feature-nearby-customers",
+          "label": "Πελάτες \"κοντά σου\"",
+          "description": "",
+          "price": 0
+        },
+        {
+          "id": "feature-near-me",
+          "label": "Εμφάνιση \"κοντά μου\"",
+          "description": "",
+          "price": 0
+        },
+        {
+          "id": "feature-google-rankings",
+          "label": "Καλύτερες θέσεις Google",
+          "description": "",
+          "price": 0
+        },
+        {
+          "id": "feature-maps-presence",
+          "label": "Καλύτερη παρουσία Maps",
+          "description": "",
+          "price": 0
+        },
+        {
+          "id": "feature-more-clicks",
+          "label": "Περισσότερα κλικ",
+          "description": "",
+          "price": 0
+        },
+        {
+          "id": "feature-more-bookings",
+          "label": "Περισσότερες κρατήσεις",
+          "description": "",
+          "price": 0
+        },
+        {
+          "id": "feature-more-reviews",
+          "label": "Περισσότερες κριτικές",
+          "description": "",
+          "price": 0
+        },
+        {
+          "id": "feature-better-reputation",
+          "label": "Καλύτερη φήμη",
+          "description": "",
+          "price": 0
+        },
+        {
+          "id": "feature-more-trust",
+          "label": "Περισσότερη εμπιστοσύνη",
+          "description": "",
+          "price": 0
+        },
+        {
+          "id": "feature-more-sales",
+          "label": "Περισσότερες πωλήσεις",
+          "description": "",
+          "price": 0
+        },
+        {
+          "id": "feature-stable-visibility",
+          "label": "Σταθερή προβολή",
+          "description": "",
+          "price": 0
+        },
+        {
+          "id": "feature-competitive-advantage",
+          "label": "Πλεονέκτημα ανταγωνισμού",
+          "description": "",
+          "price": 0
+        },
+        {
           "id": "feature-content-marketing",
           "label": "Μάρκετινγκ περιεχομένου για τοπικό SEO",
           "description": "",
@@ -173,6 +269,114 @@
           "label": "Κόστος Εγκατάστασης",
           "description": "Εφάπαξ κόστος εγκατάστασης",
           "price": 500
+        },
+        {
+          "id": "feature-phone-calls",
+          "label": "Περισσότερα τηλεφωνήματα",
+          "description": "",
+          "price": 0
+        },
+        {
+          "id": "feature-messages-forms",
+          "label": "Περισσότερα μηνύματα/φόρμες",
+          "description": "",
+          "price": 0
+        },
+        {
+          "id": "feature-visits",
+          "label": "Περισσότερες επισκέψεις",
+          "description": "",
+          "price": 0
+        },
+        {
+          "id": "feature-maps-directions",
+          "label": "Περισσότερες οδηγίες Maps",
+          "description": "",
+          "price": 0
+        },
+        {
+          "id": "feature-nearby-customers",
+          "label": "Πελάτες \"κοντά σου\"",
+          "description": "",
+          "price": 0
+        },
+        {
+          "id": "feature-near-me",
+          "label": "Εμφάνιση \"κοντά μου\"",
+          "description": "",
+          "price": 0
+        },
+        {
+          "id": "feature-google-rankings",
+          "label": "Καλύτερες θέσεις Google",
+          "description": "",
+          "price": 0
+        },
+        {
+          "id": "feature-maps-presence",
+          "label": "Καλύτερη παρουσία Maps",
+          "description": "",
+          "price": 0
+        },
+        {
+          "id": "feature-more-clicks",
+          "label": "Περισσότερα κλικ",
+          "description": "",
+          "price": 0
+        },
+        {
+          "id": "feature-more-bookings",
+          "label": "Περισσότερες κρατήσεις",
+          "description": "",
+          "price": 0
+        },
+        {
+          "id": "feature-more-reviews",
+          "label": "Περισσότερες κριτικές",
+          "description": "",
+          "price": 0
+        },
+        {
+          "id": "feature-better-reputation",
+          "label": "Καλύτερη φήμη",
+          "description": "",
+          "price": 0
+        },
+        {
+          "id": "feature-more-trust",
+          "label": "Περισσότερη εμπιστοσύνη",
+          "description": "",
+          "price": 0
+        },
+        {
+          "id": "feature-more-sales",
+          "label": "Περισσότερες πωλήσεις",
+          "description": "",
+          "price": 0
+        },
+        {
+          "id": "feature-stable-visibility",
+          "label": "Σταθερή προβολή",
+          "description": "",
+          "price": 0
+        },
+        {
+          "id": "feature-competitive-advantage",
+          "label": "Πλεονέκτημα ανταγωνισμού",
+          "description": "",
+          "price": 0
+        },
+        {
+          "id": "feature-content-marketing",
+          "label": "Μάρκετινγκ περιεχομένου για τοπικό SEO",
+          "description": "",
+          "price": 0
+        },
+        {
+          "id": "feature-personal-strategy",
+          "label": "Προσωπική στρατηγική",
+          "description": "",
+          "price": 0
         },
         {
           "id": "feature-multi-channel",
