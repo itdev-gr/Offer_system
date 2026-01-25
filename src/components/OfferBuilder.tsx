@@ -12,11 +12,13 @@ interface CatalogItem {
 
 type Catalog = Record<string, CatalogItem[]>;
 
-const catalog = catalogData as Catalog;
-const categories = Object.keys(catalog);
+// Fallback catalog from JSON file
+const fallbackCatalog = catalogData as Catalog;
 
 export default function OfferBuilder() {
-  const [selectedCategory, setSelectedCategory] = useState<string>(categories[0]);
+  const [catalog, setCatalog] = useState<Catalog>(fallbackCatalog);
+  const [categories, setCategories] = useState<string[]>(Object.keys(fallbackCatalog));
+  const [selectedCategory, setSelectedCategory] = useState<string>(categories[0] || '');
   const [selectedItems, setSelectedItems] = useState<OfferItem[]>([]);
   const [clientName, setClientName] = useState('');
   const [companyName, setCompanyName] = useState('');
@@ -29,6 +31,7 @@ export default function OfferBuilder() {
   const [isSubmitting, setIsSubmitting] = useState(false);
   const [error, setError] = useState('');
   const [isAdmin, setIsAdmin] = useState(false);
+  const [isLoadingCatalog, setIsLoadingCatalog] = useState(true);
 
   const handleItemToggle = (category: string, item: CatalogItem) => {
     const existingIndex = selectedItems.findIndex(
@@ -64,6 +67,37 @@ export default function OfferBuilder() {
   };
 
   useEffect(() => {
+    // Load catalog from API
+    fetch('/api/catalog')
+      .then((res) => {
+        if (res.ok) {
+          return res.json();
+        }
+        throw new Error('Failed to load catalog');
+      })
+      .then((data: Catalog) => {
+        if (data && Object.keys(data).length > 0) {
+          setCatalog(data);
+          const cats = Object.keys(data);
+          setCategories(cats);
+          if (cats.length > 0 && !cats.includes(selectedCategory)) {
+            setSelectedCategory(cats[0]);
+          }
+        }
+        setIsLoadingCatalog(false);
+      })
+      .catch((err) => {
+        console.error('Error loading catalog from API, using fallback:', err);
+        // Use fallback catalog if API fails
+        setCatalog(fallbackCatalog);
+        const cats = Object.keys(fallbackCatalog);
+        setCategories(cats);
+        if (cats.length > 0) {
+          setSelectedCategory(cats[0]);
+        }
+        setIsLoadingCatalog(false);
+      });
+
     // Check if user is admin
     fetch('/api/users')
       .then((res) => {
@@ -191,6 +225,9 @@ export default function OfferBuilder() {
             <div className="col-span-12 lg:col-span-9">
               <div className="bg-white rounded-lg shadow-md p-6">
                 <h2 className="text-xl font-bold mb-4">{selectedCategory}</h2>
+                {isLoadingCatalog ? (
+                  <p className="text-gray-500 text-center py-8">Loading products...</p>
+                ) : catalog[selectedCategory] && catalog[selectedCategory].length > 0 ? (
                 <div className="space-y-4">
                   {catalog[selectedCategory].map((item) => (
                     <label
@@ -218,6 +255,9 @@ export default function OfferBuilder() {
                     </label>
                   ))}
                 </div>
+                ) : (
+                  <p className="text-gray-500 text-center py-8">No products in this category.</p>
+                )}
 
                 <div className="mt-8 border-t pt-6">
                   <h3 className="text-lg font-semibold mb-4">Offer Details</h3>
