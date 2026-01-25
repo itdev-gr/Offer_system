@@ -91,9 +91,14 @@ export const POST: APIRoute = async ({ request, cookies, url }) => {
     // Wait a bit more for Tailwind CDN to fully process
     await page.waitForTimeout(1000);
 
+    // Get the full height of the content
+    const bodyHeight = await page.evaluate(() => {
+      return document.body.scrollHeight;
+    });
+
     const pdf = await page.pdf({
       width: '210mm',
-      height: '297mm',
+      height: `${Math.max(bodyHeight / 3.779527559, 297)}mm`, // Convert px to mm (1mm = 3.779527559px)
       margin: {
         top: '0mm',
         right: '0mm',
@@ -101,7 +106,7 @@ export const POST: APIRoute = async ({ request, cookies, url }) => {
         left: '0mm',
       },
       printBackground: true,
-      preferCSSPageSize: false,
+      preferCSSPageSize: true,
       displayHeaderFooter: false,
     });
 

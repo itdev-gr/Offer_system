@@ -87,11 +87,6 @@ export function renderPdfTemplate(props: PdfTemplateProps): string {
     <style>
       @page {
         margin: 0;
-        size: A4;
-      }
-      * {
-        page-break-inside: avoid;
-        break-inside: avoid;
       }
       body {
         margin: 0;
@@ -100,25 +95,11 @@ export function renderPdfTemplate(props: PdfTemplateProps): string {
       }
       .print-page {
         background: #5aa9a5;
-        min-height: 100vh;
         padding: 2.5rem 1.5rem;
+        width: 100%;
       }
       .accordion-content {
         display: block !important;
-      }
-      /* Prevent page breaks in specific sections */
-      .accordion-item,
-      .bg-gradient-to-b,
-      .border-t,
-      table,
-      tr {
-        page-break-inside: avoid;
-        break-inside: avoid;
-      }
-      /* Allow page breaks only between major sections if needed */
-      .mb-10 {
-        page-break-after: avoid;
-        break-after: avoid;
       }
     </style>
   </head>
