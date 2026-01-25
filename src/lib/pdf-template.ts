@@ -1,3 +1,4 @@
+import PDFDocument from 'pdfkit';
 import type { OfferItem } from './money';
 import { formatCurrency } from './money';
 
@@ -25,14 +26,16 @@ interface PdfTemplateProps {
   validUntil: Date;
 }
 
-export function renderPdfTemplate(props: PdfTemplateProps): string {
+export function generatePdf(props: PdfTemplateProps): Promise<Buffer> {
+  return new Promise((resolve, reject) => {
+    try {
   const {
     offerId,
     clientName,
     companyName,
     email,
-    senderName,
-    senderSurname,
+        senderName,
+        senderSurname,
     currency,
     discountPercent,
     vatPercent,
@@ -44,246 +47,241 @@ export function renderPdfTemplate(props: PdfTemplateProps): string {
     validUntil,
   } = props;
 
-  const itemsHtml = items
-    .map(
-      (item) => `
-      <tr>
-        <td>${escapeHtml(item.category)}</td>
-        <td>
-          <strong>${escapeHtml(item.label)}</strong><br />
-          <span style="color: #666; font-size: 10px;">${escapeHtml(item.description)}</span>
-        </td>
-        <td class="text-right">${item.qty}</td>
-        <td class="text-right">${formatCurrency(item.unitPrice, currency)}</td>
-        <td class="text-right"><strong>${formatCurrency(item.lineTotal, currency)}</strong></td>
-      </tr>
-    `
-    )
-    .join('');
+      // Create PDF document
+      const doc = new PDFDocument({
+        size: 'A4',
+        margins: {
+          top: 40,
+          bottom: 40,
+          left: 40,
+          right: 40,
+        },
+      });
 
-  return `<!DOCTYPE html>
-<html lang="en">
-  <head>
-    <meta charset="UTF-8" />
-    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-    <title>Offer #${offerId.slice(0, 8)}</title>
-    <style>
-      * {
-        margin: 0;
-        padding: 0;
-        box-sizing: border-box;
-      }
-      body {
-        font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, 'Helvetica Neue', Arial, sans-serif;
-        font-size: 12px;
-        line-height: 1.6;
-        color: #333;
-        padding: 40px;
-      }
-      .header {
-        border-bottom: 2px solid #4f46e5;
-        padding-bottom: 20px;
-        margin-bottom: 30px;
-      }
-      .company-name {
-        font-size: 24px;
-        font-weight: bold;
-        color: #4f46e5;
-        margin-bottom: 5px;
-      }
-      .company-address {
-        font-size: 10px;
-        color: #666;
-      }
-      .offer-info {
-        display: flex;
-        justify-content: space-between;
-        margin-bottom: 30px;
-      }
-      .client-info, .offer-details {
-        flex: 1;
-      }
-      .section-title {
-        font-size: 10px;
-        font-weight: 600;
-        color: #666;
-        text-transform: uppercase;
-        margin-bottom: 5px;
-      }
-      .section-content {
-        font-size: 12px;
-        color: #333;
-      }
-      table {
-        width: 100%;
-        border-collapse: collapse;
-        margin-bottom: 30px;
-      }
-      thead {
-        background-color: #f3f4f6;
-      }
-      th {
-        text-align: left;
-        padding: 10px;
-        font-size: 10px;
-        font-weight: 600;
-        color: #666;
-        text-transform: uppercase;
-        border-bottom: 2px solid #e5e7eb;
-      }
-      td {
-        padding: 10px;
-        font-size: 11px;
-        border-bottom: 1px solid #e5e7eb;
-      }
-      .text-right {
-        text-align: right;
-      }
-      .totals {
-        margin-left: auto;
-        width: 250px;
-      }
-      .totals-row {
-        display: flex;
-        justify-content: space-between;
-        padding: 5px 0;
-        font-size: 11px;
-      }
-      .totals-row.total {
-        font-size: 14px;
-        font-weight: bold;
-        border-top: 2px solid #333;
-        padding-top: 10px;
-        margin-top: 10px;
-      }
-      .notes {
-        margin-top: 30px;
-        padding-top: 20px;
-        border-top: 1px solid #e5e7eb;
-      }
-      .footer {
-        margin-top: 40px;
-        padding-top: 20px;
-        border-top: 1px solid #e5e7eb;
-        font-size: 10px;
-        color: #666;
-        text-align: center;
-      }
-    </style>
-  </head>
-  <body>
-    <div class="header">
-      <div class="company-name">Your Company Name</div>
-      <div class="company-address">
-        123 Business Street, City, Country<br />
-        Email: info@company.com | Phone: +1 234 567 890
-      </div>
-    </div>
+      const chunks: Buffer[] = [];
+      doc.on('data', (chunk) => chunks.push(chunk));
+      doc.on('end', () => resolve(Buffer.concat(chunks)));
+      doc.on('error', reject);
 
-    <div class="offer-info">
-      <div class="client-info">
-        <div class="section-title">Client Information</div>
-        <div class="section-content">
-          <strong>${escapeHtml(clientName)}</strong><br />
-          ${companyName ? `${escapeHtml(companyName)}<br />` : ''}
-          ${email ? `${escapeHtml(email)}<br />` : ''}
-          ${senderName || senderSurname ? `
-          <div style="margin-top: 15px;">
-            <div class="section-title">From</div>
-            <div class="section-content">
-              ${escapeHtml([senderName, senderSurname].filter(Boolean).join(' '))}
-            </div>
-          </div>
-          ` : ''}
-        </div>
-      </div>
-      <div class="offer-details">
-        <div class="section-title">Offer Details</div>
-        <div class="section-content">
-          <strong>Offer #:</strong> ${offerId.slice(0, 8)}<br />
-          <strong>Date:</strong> ${createdAt.toLocaleDateString()}<br />
-          <strong>Valid Until:</strong> ${validUntil.toLocaleDateString()}<br />
-          <strong>Validity:</strong> ${validityDays} days
-        </div>
-      </div>
-    </div>
+      // Header
+      doc
+        .fontSize(24)
+        .fillColor('#4f46e5')
+        .text('Your Company Name', { align: 'left' })
+        .fontSize(10)
+        .fillColor('#666666')
+        .text('123 Business Street, City, Country', { align: 'left' })
+        .text('Email: info@company.com | Phone: +1 234 567 890', { align: 'left' })
+        .moveDown(2);
 
-    <table>
-      <thead>
-        <tr>
-          <th>Category</th>
-          <th>Item</th>
-          <th class="text-right">Qty</th>
-          <th class="text-right">Unit Price</th>
-          <th class="text-right">Total</th>
-        </tr>
-      </thead>
-      <tbody>
-        ${itemsHtml}
-      </tbody>
-    </table>
+      // Draw line
+      doc
+        .strokeColor('#4f46e5')
+        .lineWidth(2)
+        .moveTo(40, doc.y)
+        .lineTo(555, doc.y)
+        .stroke()
+        .moveDown(2);
 
-    <div class="totals">
-      <div class="totals-row">
-        <span>Subtotal:</span>
-        <span>${formatCurrency(totals.subtotal, currency)}</span>
-      </div>
-      ${
-        discountPercent > 0
-          ? `
-      <div class="totals-row" style="color: #059669;">
-        <span>Discount (${discountPercent}%):</span>
-        <span>-${formatCurrency(totals.discountAmount, currency)}</span>
-      </div>
-      `
-          : ''
+      // Offer Info Section
+      doc.fontSize(12).fillColor('#333333');
+      
+      // Left column - Client Information
+      const startY = doc.y;
+      doc
+        .fontSize(10)
+        .fillColor('#666666')
+        .text('CLIENT INFORMATION', { continued: false })
+        .fontSize(12)
+        .fillColor('#333333')
+        .font('Helvetica-Bold')
+        .text(clientName, { continued: false });
+      
+      if (companyName) {
+        doc.font('Helvetica').text(companyName);
       }
-      <div class="totals-row">
-        <span>Taxable:</span>
-        <span>${formatCurrency(totals.taxable, currency)}</span>
-      </div>
-      ${
-        vatPercent > 0
-          ? `
-      <div class="totals-row">
-        <span>VAT (${vatPercent}%):</span>
-        <span>${formatCurrency(totals.vatAmount, currency)}</span>
-      </div>
-      `
-          : ''
+      if (email) {
+        doc.text(email);
       }
-      <div class="totals-row total">
-        <span>Total:</span>
-        <span>${formatCurrency(totals.total, currency)}</span>
-      </div>
-    </div>
+      
+      if (senderName || senderSurname) {
+        doc.moveDown(1);
+        doc.fontSize(10).fillColor('#666666').text('FROM', { continued: false });
+        doc.fontSize(12).fillColor('#333333').font('Helvetica').text([senderName, senderSurname].filter(Boolean).join(' '));
+      }
 
-    ${
-      notes
-        ? `
-    <div class="notes">
-      <div class="section-title">Notes</div>
-      <div class="section-content" style="white-space: pre-wrap;">${escapeHtml(notes)}</div>
-    </div>
-    `
-        : ''
+      // Right column - Offer Details
+      const rightColumnX = 300;
+      let rightY = startY;
+      doc
+        .fontSize(10)
+        .fillColor('#666666')
+        .text('OFFER DETAILS', rightColumnX, rightY);
+      rightY += 15;
+      doc
+        .fontSize(12)
+        .fillColor('#333333')
+        .font('Helvetica')
+        .text(`Offer #: ${offerId.slice(0, 8)}`, rightColumnX, rightY);
+      rightY += 15;
+      doc.text(`Date: ${createdAt.toLocaleDateString()}`, rightColumnX, rightY);
+      rightY += 15;
+      doc.text(`Valid Until: ${validUntil.toLocaleDateString()}`, rightColumnX, rightY);
+      rightY += 15;
+      doc.text(`Validity: ${validityDays} days`, rightColumnX, rightY);
+      
+      // Set doc.y to the maximum of left and right columns
+      doc.y = Math.max(doc.y, rightY + 20);
+
+      // Move to next section
+      doc.moveDown(2);
+
+      // Items Table
+      const tableTop = doc.y;
+      const itemHeight = 20;
+      const tableWidth = 515;
+      const colWidths = {
+        category: 100,
+        item: 200,
+        qty: 50,
+        unitPrice: 80,
+        total: 85,
+      };
+
+      // Table Header
+      doc
+        .fontSize(10)
+        .fillColor('#666666')
+        .font('Helvetica-Bold')
+        .text('Category', 40, tableTop, { width: colWidths.category })
+        .text('Item', 140, tableTop, { width: colWidths.item })
+        .text('Qty', 340, tableTop, { width: colWidths.qty, align: 'right' })
+        .text('Unit Price', 390, tableTop, { width: colWidths.unitPrice, align: 'right' })
+        .text('Total', 470, tableTop, { width: colWidths.total, align: 'right' });
+
+      // Draw header line
+      doc
+        .strokeColor('#e5e7eb')
+        .lineWidth(2)
+        .moveTo(40, tableTop + 15)
+        .lineTo(555, tableTop + 15)
+        .stroke();
+
+      // Table Rows
+      let currentY = tableTop + 25;
+      items.forEach((item) => {
+        if (currentY > 700) {
+          // New page if needed
+          doc.addPage();
+          currentY = 40;
+        }
+
+        doc
+          .fontSize(11)
+          .fillColor('#333333')
+          .font('Helvetica')
+          .text(item.category || 'Other', 40, currentY, { width: colWidths.category })
+          .font('Helvetica-Bold')
+          .text(item.label, 140, currentY, { width: colWidths.item });
+        
+        if (item.description) {
+          doc
+            .fontSize(10)
+            .fillColor('#666666')
+            .font('Helvetica')
+            .text(item.description, 140, currentY + 12, { width: colWidths.item });
+        }
+
+        doc
+          .fontSize(11)
+          .fillColor('#333333')
+          .font('Helvetica')
+          .text(item.qty.toString(), 340, currentY, { width: colWidths.qty, align: 'right' })
+          .text(formatCurrency(item.unitPrice, currency), 390, currentY, { width: colWidths.unitPrice, align: 'right' })
+          .font('Helvetica-Bold')
+          .text(formatCurrency(item.lineTotal, currency), 470, currentY, { width: colWidths.total, align: 'right' });
+
+        // Draw row line
+        doc
+          .strokeColor('#e5e7eb')
+          .lineWidth(1)
+          .moveTo(40, currentY + itemHeight)
+          .lineTo(555, currentY + itemHeight)
+          .stroke();
+
+        currentY += itemHeight + 5;
+      });
+
+      doc.y = currentY + 10;
+
+      // Totals Section
+      const totalsX = 355;
+      const totalsStartY = doc.y;
+
+      doc
+        .fontSize(11)
+        .fillColor('#333333')
+        .font('Helvetica')
+        .text('Subtotal:', totalsX, totalsStartY, { width: 100, align: 'right' })
+        .text(formatCurrency(totals.subtotal, currency), totalsX + 100, totalsStartY, { width: 100, align: 'right' });
+
+      if (discountPercent > 0) {
+        doc
+          .fillColor('#059669')
+          .text(`Discount (${discountPercent}%):`, totalsX, doc.y + 5, { width: 100, align: 'right' })
+          .text(`-${formatCurrency(totals.discountAmount, currency)}`, totalsX + 100, doc.y - 11, { width: 100, align: 'right' });
+      }
+
+      doc
+        .fillColor('#333333')
+        .text('Taxable:', totalsX, doc.y + 5, { width: 100, align: 'right' })
+        .text(formatCurrency(totals.taxable, currency), totalsX + 100, doc.y - 11, { width: 100, align: 'right' });
+
+      if (vatPercent > 0) {
+        doc
+          .text(`VAT (${vatPercent}%):`, totalsX, doc.y + 5, { width: 100, align: 'right' })
+          .text(formatCurrency(totals.vatAmount, currency), totalsX + 100, doc.y - 11, { width: 100, align: 'right' });
+      }
+
+      // Total line
+      doc
+        .strokeColor('#333333')
+        .lineWidth(2)
+        .moveTo(totalsX, doc.y + 10)
+        .lineTo(totalsX + 200, doc.y + 10)
+        .stroke();
+
+      doc
+        .fontSize(14)
+        .font('Helvetica-Bold')
+        .text('Total:', totalsX, doc.y + 15, { width: 100, align: 'right' })
+        .text(formatCurrency(totals.total, currency), totalsX + 100, doc.y - 14, { width: 100, align: 'right' });
+
+      // Notes Section
+      if (notes) {
+        doc.moveDown(2);
+        doc
+          .fontSize(10)
+          .fillColor('#666666')
+          .font('Helvetica-Bold')
+          .text('NOTES', { continued: false })
+          .fontSize(12)
+          .fillColor('#333333')
+          .font('Helvetica')
+          .text(notes, { align: 'left' });
+      }
+
+      // Footer
+      doc
+        .fontSize(10)
+        .fillColor('#666666')
+        .text(`This offer is valid until ${validUntil.toLocaleDateString()}`, { align: 'center' })
+        .text('Thank you for your business!', { align: 'center' });
+
+      // Finalize PDF
+      doc.end();
+    } catch (error) {
+      reject(error);
     }
-
-    <div class="footer">
-      <p>This offer is valid until ${validUntil.toLocaleDateString()}</p>
-      <p style="margin-top: 10px;">Thank you for your business!</p>
-    </div>
-  </body>
-</html>`;
-}
-
-function escapeHtml(text: string): string {
-  const map: Record<string, string> = {
-    '&': '&amp;',
-    '<': '&lt;',
-    '>': '&gt;',
-    '"': '&quot;',
-    "'": '&#039;',
-  };
-  return text.replace(/[&<>"']/g, (m) => map[m]);
+  });
 }

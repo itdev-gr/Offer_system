@@ -1,9 +1,7 @@
 import type { APIRoute } from 'astro';
 import { requireUser } from '../../lib/auth/middleware';
 import { getAdminDb } from '../../lib/firebase/admin';
-import { renderPdfTemplate } from '../../lib/pdf-template';
-import puppeteer from 'puppeteer-core';
-import chromium from '@sparticuz/chromium';
+import { generatePdf } from '../../lib/pdf-template';
 import type { OfferItem } from '../../lib/money';
 
 export const POST: APIRoute = async ({ request, cookies, url }) => {
@@ -58,8 +56,8 @@ export const POST: APIRoute = async ({ request, cookies, url }) => {
       }
     }
 
-    // Render the PDF template to HTML
-    const html = renderPdfTemplate({
+    // Generate PDF using PDFKit
+    const pdfBuffer = await generatePdf({
       offerId,
       clientName: offer.clientName,
       companyName: offer.companyName || undefined,
@@ -77,31 +75,7 @@ export const POST: APIRoute = async ({ request, cookies, url }) => {
       validUntil,
     });
 
-    // Generate PDF using Puppeteer with Chromium for serverless
-    const browser = await puppeteer.launch({
-      args: chromium.args,
-      defaultViewport: chromium.defaultViewport,
-      executablePath: await chromium.executablePath(),
-      headless: chromium.headless,
-    });
-    
-    const page = await browser.newPage();
-    await page.setContent(html, { waitUntil: 'networkidle0' });
-
-    const pdf = await page.pdf({
-      format: 'A4',
-      margin: {
-        top: '20mm',
-        right: '15mm',
-        bottom: '20mm',
-        left: '15mm',
-      },
-      printBackground: true,
-    });
-
-    await browser.close();
-
-    return new Response(pdf, {
+    return new Response(pdfBuffer, {
       status: 200,
       headers: {
         'Content-Type': 'application/pdf',
