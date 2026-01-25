@@ -87,7 +87,9 @@ export const POST: APIRoute = async ({ request, cookies, url }) => {
     });
     
     const page = await browser.newPage();
-    await page.setContent(html, { waitUntil: 'networkidle0' });
+    await page.setContent(html, { waitUntil: 'networkidle0', timeout: 30000 });
+    // Wait a bit more for Tailwind CDN to fully process
+    await page.waitForTimeout(1000);
 
     const pdf = await page.pdf({
       width: '210mm',

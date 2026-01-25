@@ -101,7 +101,7 @@ export function renderPdfTemplate(props: PdfTemplateProps): string {
       .print-page {
         background: #5aa9a5;
         min-height: 100vh;
-        padding: 40px 24px;
+        padding: 2.5rem 1.5rem;
       }
       .accordion-content {
         display: block !important;
@@ -337,7 +337,7 @@ export function renderPdfTemplate(props: PdfTemplateProps): string {
         </section>
 
         ${notes ? `
-        <section class="border-t pt-6 mt-8 bg-white rounded-xl p-6 shadow">
+        <section class="border-t pt-6 mt-8">
           <h3 class="text-sm font-medium text-gray-500 mb-2">Σημειώσεις</h3>
           <p class="text-sm text-gray-900 whitespace-pre-wrap">${escapeHtml(notes)}</p>
         </section>
