@@ -810,6 +810,27 @@ const admin = await requireAdmin(Astro.cookies);
     document.getElementById('closeSubProductModalBtn')!.addEventListener('click', closeSubProductModal);
     document.getElementById('cancelSubProductEditBtn')!.addEventListener('click', closeSubProductModal);
 
+    // Migrate catalog from JSON file
+    async function migrateFromJson() {
+      if (!confirm('This will replace the current catalog with the data from catalog.json. Continue?')) {
+        return;
+      }
+
+      try {
+        const response = await fetch('/api/catalog?migrate=true');
+        if (!response.ok) {
+          const errorData = await response.json().catch(() => ({ error: 'Unknown error' }));
+          throw new Error(errorData.error || 'Failed to migrate catalog');
+        }
+        
+        await loadCatalog();
+        alert('Catalog migrated successfully from catalog.json!');
+      } catch (error: any) {
+        console.error('Error migrating catalog:', error);
+        alert('Failed to migrate catalog: ' + error.message);
+      }
+    }
+
     // Make functions global for onclick handlers
     (window as any).addProduct = addProduct;
     (window as any).editProduct = editProduct;
@@ -820,6 +841,7 @@ const admin = await requireAdmin(Astro.cookies);
     (window as any).editSubProduct = editSubProduct;
     (window as any).deleteSubProduct = deleteSubProduct;
     (window as any).loadCatalog = loadCatalog;
+    (window as any).migrateFromJson = migrateFromJson;
 
     // Load catalog on page load
     console.log('Page loaded, fetching catalog...');

@@ -21,10 +21,42 @@ interface CatalogItem {
 type Catalog = Record<string, CatalogItem[]>;
 
 // GET - Get all catalog (public, but admin can edit)
-export const GET: APIRoute = async () => {
+export const GET: APIRoute = async ({ url }) => {
   try {
     const db = await getAdminDb();
+    const forceMigrate = url.searchParams.get('migrate') === 'true';
     const catalogDoc = await db.collection('config').doc('catalog').get();
+    
+    // Force migration from JSON if requested
+    if (forceMigrate) {
+      try {
+        const catalogData = await import('../../data/catalog.json');
+        const catalog = catalogData.default as Catalog;
+        
+        // Save to Firestore
+        await db.collection('config').doc('catalog').set({
+          ...catalog,
+          migratedAt: new Date(),
+        });
+        
+        return new Response(
+          JSON.stringify(catalog),
+          {
+            status: 200,
+            headers: { 'Content-Type': 'application/json' },
+          }
+        );
+      } catch (importError) {
+        console.error('Failed to import catalog.json:', importError);
+        return new Response(
+          JSON.stringify({ error: 'Failed to migrate catalog from JSON' }),
+          {
+            status: 500,
+            headers: { 'Content-Type': 'application/json' },
+          }
+        );
+      }
+    }
     
     if (!catalogDoc.exists) {
       // Auto-migrate from JSON file if catalog doesn't exist in Firestore
