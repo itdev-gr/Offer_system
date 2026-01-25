@@ -20,82 +20,55 @@ interface CatalogItem {
 
 type Catalog = Record<string, CatalogItem[]>;
 
-// GET - Get all catalog (public, but admin can edit)
-export const GET: APIRoute = async ({ url }) => {
+// GET - Get all catalog (always from JSON file, sync to Firestore for admin edits)
+export const GET: APIRoute = async () => {
   try {
-    const db = await getAdminDb();
-    const forceMigrate = url.searchParams.get('migrate') === 'true';
-    const catalogDoc = await db.collection('config').doc('catalog').get();
+    // Always load from JSON file first
+    const catalogData = await import('../../data/catalog.json');
+    const catalog = catalogData.default as Catalog;
     
-    // Force migration from JSON if requested
-    if (forceMigrate) {
-      try {
-        const catalogData = await import('../../data/catalog.json');
-        const catalog = catalogData.default as Catalog;
+    // Sync to Firestore in background (for admin edits)
+    try {
+      const db = await getAdminDb();
+      const catalogDoc = await db.collection('config').doc('catalog').get();
+      
+      // If Firestore has edits, merge them (admin edits take precedence)
+      if (catalogDoc.exists) {
+        const firestoreCatalog = catalogDoc.data() as Catalog;
+        const { updatedAt, migratedAt, ...cleanFirestoreCatalog } = firestoreCatalog;
         
-        // Save to Firestore
-        await db.collection('config').doc('catalog').set({
-          ...catalog,
-          migratedAt: new Date(),
-        });
+        // Merge: Use Firestore data if it exists, otherwise use JSON
+        const mergedCatalog: Catalog = {};
+        const allCategories = new Set([
+          ...Object.keys(catalog),
+          ...Object.keys(cleanFirestoreCatalog),
+        ]);
         
-        return new Response(
-          JSON.stringify(catalog),
-          {
-            status: 200,
-            headers: { 'Content-Type': 'application/json' },
+        for (const category of allCategories) {
+          if (cleanFirestoreCatalog[category]) {
+            // Use Firestore version if it exists
+            mergedCatalog[category] = cleanFirestoreCatalog[category];
+          } else if (catalog[category]) {
+            // Otherwise use JSON version
+            mergedCatalog[category] = catalog[category];
           }
-        );
-      } catch (importError) {
-        console.error('Failed to import catalog.json:', importError);
-        return new Response(
-          JSON.stringify({ error: 'Failed to migrate catalog from JSON' }),
-          {
-            status: 500,
-            headers: { 'Content-Type': 'application/json' },
-          }
-        );
-      }
-    }
-    
-    if (!catalogDoc.exists) {
-      // Auto-migrate from JSON file if catalog doesn't exist in Firestore
-      try {
-        const catalogData = await import('../../data/catalog.json');
-        const catalog = catalogData.default as Catalog;
-        
-        // Save to Firestore for future use
-        await db.collection('config').doc('catalog').set({
-          ...catalog,
-          migratedAt: new Date(),
-        });
+        }
         
         return new Response(
-          JSON.stringify(catalog),
-          {
-            status: 200,
-            headers: { 'Content-Type': 'application/json' },
-          }
-        );
-      } catch (importError) {
-        // If import fails, return empty catalog
-        console.error('Failed to import catalog.json:', importError);
-        return new Response(
-          JSON.stringify({}),
+          JSON.stringify(mergedCatalog),
           {
             status: 200,
             headers: { 'Content-Type': 'application/json' },
           }
         );
       }
+    } catch (error) {
+      // If Firestore fails, just return JSON
+      console.error('Firestore sync error, using JSON only:', error);
     }
-    
-    const catalog = catalogDoc.data() as Catalog;
-    // Remove metadata fields before returning
-    const { updatedAt, migratedAt, ...cleanCatalog } = catalog;
     
     return new Response(
-      JSON.stringify(cleanCatalog),
+      JSON.stringify(catalog),
       {
         status: 200,
         headers: { 'Content-Type': 'application/json' },

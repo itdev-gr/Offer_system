@@ -40,16 +40,7 @@ const admin = await requireAdmin(Astro.cookies);
 
       <!-- Add Category Section -->
       <div class="bg-white rounded-lg shadow-md p-6 mb-6">
-        <div class="flex justify-between items-center mb-4">
-          <h2 class="text-xl font-bold text-gray-900">Add New Category</h2>
-          <button
-            onclick="migrateFromJson()"
-            class="px-4 py-2 bg-green-600 text-white rounded-md hover:bg-green-700 text-sm font-medium"
-            title="Migrate catalog from catalog.json file"
-          >
-            🔄 Migrate from JSON
-          </button>
-        </div>
+        <h2 class="text-xl font-bold text-gray-900 mb-4">Add New Category</h2>
         <div class="flex gap-2">
           <input
             type="text"
@@ -819,27 +810,6 @@ const admin = await requireAdmin(Astro.cookies);
     document.getElementById('closeSubProductModalBtn')!.addEventListener('click', closeSubProductModal);
     document.getElementById('cancelSubProductEditBtn')!.addEventListener('click', closeSubProductModal);
 
-    // Migrate catalog from JSON file
-    async function migrateFromJson() {
-      if (!confirm('This will replace the current catalog with the data from catalog.json. Continue?')) {
-        return;
-      }
-
-      try {
-        const response = await fetch('/api/catalog?migrate=true');
-        if (!response.ok) {
-          const errorData = await response.json().catch(() => ({ error: 'Unknown error' }));
-          throw new Error(errorData.error || 'Failed to migrate catalog');
-        }
-        
-        await loadCatalog();
-        alert('Catalog migrated successfully from catalog.json!');
-      } catch (error: any) {
-        console.error('Error migrating catalog:', error);
-        alert('Failed to migrate catalog: ' + error.message);
-      }
-    }
-
     // Make functions global for onclick handlers
     (window as any).addProduct = addProduct;
     (window as any).editProduct = editProduct;
@@ -850,7 +820,6 @@ const admin = await requireAdmin(Astro.cookies);
     (window as any).editSubProduct = editSubProduct;
     (window as any).deleteSubProduct = deleteSubProduct;
     (window as any).loadCatalog = loadCatalog;
-    (window as any).migrateFromJson = migrateFromJson;
 
     // Load catalog on page load
     console.log('Page loaded, fetching catalog...');
