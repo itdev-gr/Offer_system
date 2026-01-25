@@ -89,7 +89,6 @@ export const POST: APIRoute = async ({ request, url }) => {
     });
 
     // Generate PDF using Puppeteer with Chromium for serverless
-    chromium.setGraphicsMode(false);
     const browser = await puppeteer.launch({
       args: chromium.args,
       defaultViewport: chromium.defaultViewport,
