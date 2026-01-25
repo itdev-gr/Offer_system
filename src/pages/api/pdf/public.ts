@@ -101,7 +101,8 @@ export const POST: APIRoute = async ({ request, url }) => {
     await page.setContent(html, { waitUntil: 'networkidle0' });
 
     const pdf = await page.pdf({
-      format: 'A4',
+      width: '210mm',
+      height: '297mm',
       margin: {
         top: '0mm',
         right: '0mm',
@@ -109,6 +110,8 @@ export const POST: APIRoute = async ({ request, url }) => {
         left: '0mm',
       },
       printBackground: true,
+      preferCSSPageSize: false,
+      displayHeaderFooter: false,
     });
 
     await browser.close();

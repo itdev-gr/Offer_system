@@ -87,6 +87,11 @@ export function renderPdfTemplate(props: PdfTemplateProps): string {
     <style>
       @page {
         margin: 0;
+        size: A4;
+      }
+      * {
+        page-break-inside: avoid;
+        break-inside: avoid;
       }
       body {
         margin: 0;
@@ -100,6 +105,20 @@ export function renderPdfTemplate(props: PdfTemplateProps): string {
       }
       .accordion-content {
         display: block !important;
+      }
+      /* Prevent page breaks in specific sections */
+      .accordion-item,
+      .bg-gradient-to-b,
+      .border-t,
+      table,
+      tr {
+        page-break-inside: avoid;
+        break-inside: avoid;
+      }
+      /* Allow page breaks only between major sections if needed */
+      .mb-10 {
+        page-break-after: avoid;
+        break-after: avoid;
       }
     </style>
   </head>
