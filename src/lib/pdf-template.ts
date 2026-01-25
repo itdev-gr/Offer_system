@@ -1,4 +1,3 @@
-import PDFDocument from 'pdfkit';
 import type { OfferItem } from './money';
 import { formatCurrency } from './money';
 
@@ -26,16 +25,14 @@ interface PdfTemplateProps {
   validUntil: Date;
 }
 
-export function generatePdf(props: PdfTemplateProps): Promise<Buffer> {
-  return new Promise((resolve, reject) => {
-    try {
+export function renderPdfTemplate(props: PdfTemplateProps): string {
   const {
     offerId,
     clientName,
     companyName,
     email,
-        senderName,
-        senderSurname,
+    senderName,
+    senderSurname,
     currency,
     discountPercent,
     vatPercent,
@@ -47,241 +44,298 @@ export function generatePdf(props: PdfTemplateProps): Promise<Buffer> {
     validUntil,
   } = props;
 
-      // Create PDF document
-      const doc = new PDFDocument({
-        size: 'A4',
-        margins: {
-          top: 40,
-          bottom: 40,
-          left: 40,
-          right: 40,
-        },
-      });
+  const itemsByCategory = items.reduce((acc: Record<string, OfferItem[]>, item) => {
+    const key = item.category || 'Other';
+    if (!acc[key]) acc[key] = [];
+    acc[key].push(item);
+    return acc;
+  }, {});
 
-      const chunks: Buffer[] = [];
-      doc.on('data', (chunk) => chunks.push(chunk));
-      doc.on('end', () => resolve(Buffer.concat(chunks)));
-      doc.on('error', reject);
+  const categorySections = Object.entries(itemsByCategory)
+    .map(
+      ([category, categoryItems]) => `
+      <div class="accordion-item mb-3">
+        <div class="accordion-header w-full bg-[#0b2f41] text-white px-4 py-3 flex items-center justify-between">
+          <span class="font-medium">${escapeHtml(category)}</span>
+        </div>
+        <div class="accordion-content border border-gray-200 border-t-0 bg-white">
+          <ul class="p-4 space-y-2">
+            ${categoryItems
+              .map(
+                (item) => `
+              <li class="text-sm text-gray-700 list-disc list-inside">
+                ${escapeHtml(item.label)}
+                ${item.description ? `<span class="text-xs text-gray-500"> — ${escapeHtml(item.description)}</span>` : ''}
+              </li>
+            `
+              )
+              .join('')}
+          </ul>
+        </div>
+      </div>
+    `
+    )
+    .join('');
 
-      // Header
-      doc
-        .fontSize(24)
-        .fillColor('#4f46e5')
-        .text('Your Company Name', { align: 'left' })
-        .fontSize(10)
-        .fillColor('#666666')
-        .text('123 Business Street, City, Country', { align: 'left' })
-        .text('Email: info@company.com | Phone: +1 234 567 890', { align: 'left' })
-        .moveDown(2);
-
-      // Draw line
-      doc
-        .strokeColor('#4f46e5')
-        .lineWidth(2)
-        .moveTo(40, doc.y)
-        .lineTo(555, doc.y)
-        .stroke()
-        .moveDown(2);
-
-      // Offer Info Section
-      doc.fontSize(12).fillColor('#333333');
-      
-      // Left column - Client Information
-      const startY = doc.y;
-      doc
-        .fontSize(10)
-        .fillColor('#666666')
-        .text('CLIENT INFORMATION', { continued: false })
-        .fontSize(12)
-        .fillColor('#333333')
-        .font('Helvetica-Bold')
-        .text(clientName, { continued: false });
-      
-      if (companyName) {
-        doc.font('Helvetica').text(companyName);
+  return `<!DOCTYPE html>
+<html lang="el">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>Offer #${offerId.slice(0, 8)}</title>
+    <script src="https://cdn.tailwindcss.com"></script>
+    <style>
+      @page {
+        margin: 0;
       }
-      if (email) {
-        doc.text(email);
+      body {
+        margin: 0;
+        padding: 0;
+        background: #5aa9a5;
       }
-      
-      if (senderName || senderSurname) {
-        doc.moveDown(1);
-        doc.fontSize(10).fillColor('#666666').text('FROM', { continued: false });
-        doc.fontSize(12).fillColor('#333333').font('Helvetica').text([senderName, senderSurname].filter(Boolean).join(' '));
+      .print-page {
+        background: #5aa9a5;
+        min-height: 100vh;
+        padding: 40px 24px;
       }
-
-      // Right column - Offer Details
-      const rightColumnX = 300;
-      let rightY = startY;
-      doc
-        .fontSize(10)
-        .fillColor('#666666')
-        .text('OFFER DETAILS', rightColumnX, rightY);
-      rightY += 15;
-      doc
-        .fontSize(12)
-        .fillColor('#333333')
-        .font('Helvetica')
-        .text(`Offer #: ${offerId.slice(0, 8)}`, rightColumnX, rightY);
-      rightY += 15;
-      doc.text(`Date: ${createdAt.toLocaleDateString()}`, rightColumnX, rightY);
-      rightY += 15;
-      doc.text(`Valid Until: ${validUntil.toLocaleDateString()}`, rightColumnX, rightY);
-      rightY += 15;
-      doc.text(`Validity: ${validityDays} days`, rightColumnX, rightY);
-      
-      // Set doc.y to the maximum of left and right columns
-      doc.y = Math.max(doc.y, rightY + 20);
-
-      // Move to next section
-      doc.moveDown(2);
-
-      // Items Table
-      const tableTop = doc.y;
-      const itemHeight = 20;
-      const tableWidth = 515;
-      const colWidths = {
-        category: 100,
-        item: 200,
-        qty: 50,
-        unitPrice: 80,
-        total: 85,
-      };
-
-      // Table Header
-      doc
-        .fontSize(10)
-        .fillColor('#666666')
-        .font('Helvetica-Bold')
-        .text('Category', 40, tableTop, { width: colWidths.category })
-        .text('Item', 140, tableTop, { width: colWidths.item })
-        .text('Qty', 340, tableTop, { width: colWidths.qty, align: 'right' })
-        .text('Unit Price', 390, tableTop, { width: colWidths.unitPrice, align: 'right' })
-        .text('Total', 470, tableTop, { width: colWidths.total, align: 'right' });
-
-      // Draw header line
-      doc
-        .strokeColor('#e5e7eb')
-        .lineWidth(2)
-        .moveTo(40, tableTop + 15)
-        .lineTo(555, tableTop + 15)
-        .stroke();
-
-      // Table Rows
-      let currentY = tableTop + 25;
-      items.forEach((item) => {
-        if (currentY > 700) {
-          // New page if needed
-          doc.addPage();
-          currentY = 40;
-        }
-
-        doc
-          .fontSize(11)
-          .fillColor('#333333')
-          .font('Helvetica')
-          .text(item.category || 'Other', 40, currentY, { width: colWidths.category })
-          .font('Helvetica-Bold')
-          .text(item.label, 140, currentY, { width: colWidths.item });
-        
-        if (item.description) {
-          doc
-            .fontSize(10)
-            .fillColor('#666666')
-            .font('Helvetica')
-            .text(item.description, 140, currentY + 12, { width: colWidths.item });
-        }
-
-        doc
-          .fontSize(11)
-          .fillColor('#333333')
-          .font('Helvetica')
-          .text(item.qty.toString(), 340, currentY, { width: colWidths.qty, align: 'right' })
-          .text(formatCurrency(item.unitPrice, currency), 390, currentY, { width: colWidths.unitPrice, align: 'right' })
-          .font('Helvetica-Bold')
-          .text(formatCurrency(item.lineTotal, currency), 470, currentY, { width: colWidths.total, align: 'right' });
-
-        // Draw row line
-        doc
-          .strokeColor('#e5e7eb')
-          .lineWidth(1)
-          .moveTo(40, currentY + itemHeight)
-          .lineTo(555, currentY + itemHeight)
-          .stroke();
-
-        currentY += itemHeight + 5;
-      });
-
-      doc.y = currentY + 10;
-
-      // Totals Section
-      const totalsX = 355;
-      const totalsStartY = doc.y;
-
-      doc
-        .fontSize(11)
-        .fillColor('#333333')
-        .font('Helvetica')
-        .text('Subtotal:', totalsX, totalsStartY, { width: 100, align: 'right' })
-        .text(formatCurrency(totals.subtotal, currency), totalsX + 100, totalsStartY, { width: 100, align: 'right' });
-
-      if (discountPercent > 0) {
-        doc
-          .fillColor('#059669')
-          .text(`Discount (${discountPercent}%):`, totalsX, doc.y + 5, { width: 100, align: 'right' })
-          .text(`-${formatCurrency(totals.discountAmount, currency)}`, totalsX + 100, doc.y - 11, { width: 100, align: 'right' });
+      .accordion-content {
+        display: block !important;
       }
+    </style>
+  </head>
+  <body>
+    <div class="print-page">
+      <div class="max-w-5xl mx-auto">
+        <!-- Hero Section -->
+        <div class="bg-gradient-to-b from-[#118b8f] to-[#0f6f7c] rounded-2xl p-8 md:p-12 mb-10 text-white shadow-lg">
+          <div class="flex flex-col gap-6">
+            <div class="flex items-center justify-between gap-4 flex-wrap">
+              <div class="flex items-center gap-3">
+                <div class="h-10 w-10 rounded-full bg-white/15 text-white flex items-center justify-center font-bold">
+                  IT
+                </div>
+                <div>
+                  <p class="text-xs uppercase tracking-[0.2em] text-white/80">IT DEV</p>
+                  <p class="text-xs text-white/70">Web & Digital Solutions</p>
+                </div>
+              </div>
+            </div>
 
-      doc
-        .fillColor('#333333')
-        .text('Taxable:', totalsX, doc.y + 5, { width: 100, align: 'right' })
-        .text(formatCurrency(totals.taxable, currency), totalsX + 100, doc.y - 11, { width: 100, align: 'right' });
+            <h1 class="text-2xl sm:text-3xl font-bold text-center tracking-wide">
+              ΤΕΧΝΙΚΗ & ΟΙΚΟΝΟΜΙΚΗ ΠΡΟΤΑΣΗ
+            </h1>
 
-      if (vatPercent > 0) {
-        doc
-          .text(`VAT (${vatPercent}%):`, totalsX, doc.y + 5, { width: 100, align: 'right' })
-          .text(formatCurrency(totals.vatAmount, currency), totalsX + 100, doc.y - 11, { width: 100, align: 'right' });
-      }
+            <div class="bg-white text-gray-900 rounded-2xl shadow-xl p-6 md:p-8 max-w-3xl mx-auto">
+              <div class="bg-[#0b2f41] text-white rounded-t-2xl px-6 py-3 -mx-6 -mt-6 mb-6 text-center font-semibold">
+                ${escapeHtml(clientName)}
+              </div>
+              <div class="grid grid-cols-1 md:grid-cols-2 gap-6 text-sm">
+                <div>
+                  <p class="text-xs uppercase text-gray-500">Prepared for</p>
+                  <p class="font-semibold">${escapeHtml(clientName)}</p>
+                  ${companyName ? `<p class="text-gray-600">${escapeHtml(companyName)}</p>` : ''}
+                  ${senderName || senderSurname ? `
+                  <p class="text-xs uppercase text-gray-500 mt-4">From</p>
+                  <p class="text-gray-700">
+                    ${escapeHtml([senderName, senderSurname].filter(Boolean).join(' '))}
+                  </p>
+                  ` : ''}
+                </div>
+                <div>
+                  <p class="text-xs uppercase text-gray-500">Client</p>
+                  ${email ? `<p class="text-gray-700">${escapeHtml(email)}</p>` : ''}
+                  <p class="text-gray-700">Πρόταση εκδόθηκε: ${createdAt.toLocaleDateString()}</p>
+                  <p class="text-gray-700">Πρόταση ισχύει έως: ${validUntil.toLocaleDateString()}</p>
+                </div>
+              </div>
+            </div>
+          </div>
+        </div>
 
-      // Total line
-      doc
-        .strokeColor('#333333')
-        .lineWidth(2)
-        .moveTo(totalsX, doc.y + 10)
-        .lineTo(totalsX + 200, doc.y + 10)
-        .stroke();
+        <!-- Idea Section -->
+        <section class="mb-10">
+          <div class="relative overflow-hidden rounded-2xl bg-[#0b2f41] text-white shadow-lg">
+            <div class="absolute inset-y-0 left-[48%] w-[140px] rotate-12 bg-[#3f8f8a]"></div>
+            <div class="relative p-8 md:p-10">
+              <div class="grid grid-cols-1 md:grid-cols-2 gap-8 mb-10">
+                <div>
+                  <h2 class="text-3xl font-bold leading-tight mb-4">
+                    Έχετε την ιδέα;
+                    <br />
+                    Εμείς την
+                    <br />
+                    υλοποιούμε.
+                  </h2>
+                </div>
+                <div class="text-base leading-relaxed text-white/90">
+                  Μια ολοκληρωμένη ομάδα από εξειδικευμένους συνεργάτες είναι δίπλα
+                  σας κάθε στιγμή & συνεργάζονται για το καλύτερο αποτέλεσμα.
+                </div>
+              </div>
 
-      doc
-        .fontSize(14)
-        .font('Helvetica-Bold')
-        .text('Total:', totalsX, doc.y + 15, { width: 100, align: 'right' })
-        .text(formatCurrency(totals.total, currency), totalsX + 100, doc.y - 14, { width: 100, align: 'right' });
+              <div class="border-t border-white/20 pt-8">
+                <h2 class="text-xl font-bold mb-4">Ποιοί είμαστε;</h2>
+                <p class="text-sm mb-8 text-white/90">
+                  Σας ευχαριστούμε για το ενδιαφέρον που εκδηλώσατε να συνεργαστείτε
+                  μαζί μας. Στόχος μας είναι να παρέχουμε υπηρεσίες υψηλής ποιότητας,
+                  με συνέπεια και έμφαση στην ταχύτητα, την ασφάλεια και τη
+                  διαφορετικότητα.
+                </p>
+                <div class="grid grid-cols-1 md:grid-cols-2 gap-6">
+                  <div class="bg-[#5aa9a5] rounded-lg p-6 text-white">
+                    <div class="mb-4">
+                      <svg class="w-12 h-12" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                        <circle cx="12" cy="12" r="10" stroke="currentColor" stroke-width="2" fill="none"/>
+                        <circle cx="12" cy="12" r="6" stroke="currentColor" stroke-width="2" fill="white"/>
+                      </svg>
+                    </div>
+                    <h3 class="text-lg font-bold mb-3">Our Mission</h3>
+                    <p class="text-sm leading-relaxed">
+                      Έχουμε αναπτύξει το δικό μας σύστημα διαχείρισης περιεχομένου (Content Management System), δίνοντας έμφαση στην ταχύτητα, την ασφάλεια, την διαφορετικότητα και την ευκολία στη χρήση.
+                    </p>
+                  </div>
+                  <div class="bg-[#5aa9a5] rounded-lg p-6 text-white">
+                    <div class="mb-4">
+                      <svg class="w-12 h-12" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                        <circle cx="12" cy="12" r="10" stroke="currentColor" stroke-width="2" fill="none"/>
+                        <circle cx="12" cy="12" r="6" stroke="currentColor" stroke-width="2" fill="none"/>
+                        <circle cx="12" cy="12" r="2" fill="white"/>
+                      </svg>
+                    </div>
+                    <h3 class="text-lg font-bold mb-3">Our Vision</h3>
+                    <p class="text-sm leading-relaxed">
+                      Το CMS μας έχει αποτελέσει τη βάση για περισσότερες από 200 κατασκευές ιστοσελίδων και ηλεκτρονικών καταστημάτων σε Ελλάδα και εξωτερικό, πάντα με συνεχή εξέλιξη, ενσωματώνοντας τις πιο σύγχρονες τεχνολογίες και λειτουργίες.
+                    </p>
+                  </div>
+                </div>
+              </div>
+            </div>
+          </div>
+        </section>
 
-      // Notes Section
-      if (notes) {
-        doc.moveDown(2);
-        doc
-          .fontSize(10)
-          .fillColor('#666666')
-          .font('Helvetica-Bold')
-          .text('NOTES', { continued: false })
-          .fontSize(12)
-          .fillColor('#333333')
-          .font('Helvetica')
-          .text(notes, { align: 'left' });
-      }
+        <!-- Capabilities Section -->
+        <section class="mb-10 bg-white rounded-xl p-6 shadow">
+          <h2 class="text-xl font-bold text-gray-900 mb-4">Δυνατότητες - Υπηρεσίες</h2>
+          <div class="space-y-3">
+            ${categorySections}
+          </div>
+        </section>
 
-      // Footer
-      doc
-        .fontSize(10)
-        .fillColor('#666666')
-        .text(`This offer is valid until ${validUntil.toLocaleDateString()}`, { align: 'center' })
-        .text('Thank you for your business!', { align: 'center' });
+        <!-- Financial Offer Section -->
+        <section class="mb-10 bg-white rounded-xl p-6 shadow">
+          <h2 class="text-xl font-bold text-gray-900 mb-4">Οικονομική προσφορά</h2>
+          <div class="overflow-x-auto bg-white border border-gray-200 rounded-lg">
+            <table class="min-w-full divide-y divide-gray-200">
+              <thead class="bg-gray-50">
+                <tr>
+                  <th class="px-4 py-3 text-left text-xs font-medium text-gray-500 uppercase">Κατηγορία</th>
+                  <th class="px-4 py-3 text-left text-xs font-medium text-gray-500 uppercase">Υπηρεσία</th>
+                  <th class="px-4 py-3 text-right text-xs font-medium text-gray-500 uppercase">Ποσότητα</th>
+                  <th class="px-4 py-3 text-right text-xs font-medium text-gray-500 uppercase">Τιμή</th>
+                  <th class="px-4 py-3 text-right text-xs font-medium text-gray-500 uppercase">Σύνολο</th>
+                </tr>
+              </thead>
+              <tbody class="bg-white divide-y divide-gray-200">
+                ${items
+                  .map(
+                    (item) => `
+                  <tr>
+                    <td class="px-4 py-3 text-sm text-gray-900">${escapeHtml(item.category)}</td>
+                    <td class="px-4 py-3">
+                      <p class="text-sm font-medium text-gray-900">${escapeHtml(item.label)}</p>
+                      ${item.description ? `<p class="text-xs text-gray-500">${escapeHtml(item.description)}</p>` : ''}
+                    </td>
+                    <td class="px-4 py-3 text-sm text-gray-900 text-right">${item.qty}</td>
+                    <td class="px-4 py-3 text-sm text-gray-900 text-right">${formatCurrency(item.unitPrice, currency)}</td>
+                    <td class="px-4 py-3 text-sm font-semibold text-gray-900 text-right">${formatCurrency(item.lineTotal, currency)}</td>
+                  </tr>
+                `
+                  )
+                  .join('')}
+              </tbody>
+            </table>
+          </div>
 
-      // Finalize PDF
-      doc.end();
-    } catch (error) {
-      reject(error);
-    }
-  });
+          <div class="flex justify-end mt-4">
+            <div class="w-64 space-y-2">
+              <div class="flex justify-between text-sm">
+                <span class="text-gray-600">Subtotal:</span>
+                <span class="text-gray-900">${formatCurrency(totals.subtotal, currency)}</span>
+              </div>
+              ${discountPercent > 0 ? `
+              <div class="flex justify-between text-sm text-green-600">
+                <span>Discount (${discountPercent}%):</span>
+                <span>-${formatCurrency(totals.discountAmount, currency)}</span>
+              </div>
+              ` : ''}
+              <div class="flex justify-between text-sm">
+                <span class="text-gray-600">Taxable:</span>
+                <span class="text-gray-900">${formatCurrency(totals.taxable, currency)}</span>
+              </div>
+              ${vatPercent > 0 ? `
+              <div class="flex justify-between text-sm">
+                <span class="text-gray-600">VAT (${vatPercent}%):</span>
+                <span class="text-gray-900">${formatCurrency(totals.vatAmount, currency)}</span>
+              </div>
+              ` : ''}
+              <div class="flex justify-between text-lg font-bold border-t pt-2 text-[#0f6f7c]">
+                <span>Total:</span>
+                <span>${formatCurrency(totals.total, currency)}</span>
+              </div>
+            </div>
+          </div>
+        </section>
+
+        <!-- Payment Methods Section -->
+        <section class="mb-10 bg-white rounded-xl p-6 shadow">
+          <h2 class="text-xl font-bold text-gray-900 mb-4">Τρόποι πληρωμής & συνεργασίας</h2>
+          <div class="grid grid-cols-1 md:grid-cols-2 gap-6">
+            <div class="border border-gray-200 rounded-lg p-4">
+              <h3 class="text-sm font-semibold text-gray-900 mb-2">01. Αποστολή σύμβασης</h3>
+              <p class="text-sm text-gray-600">
+                Αποστολή υπογεγραμμένης σύμβασης με υπηρεσίες, αξία επένδυσης και προκαταβολή 40%.
+              </p>
+            </div>
+            <div class="border border-gray-200 rounded-lg p-4">
+              <h3 class="text-sm font-semibold text-gray-900 mb-2">02. Κατασκευή</h3>
+              <p class="text-sm text-gray-600">
+                Ξεκινάμε την κατασκευή και ανεβάζουμε demo. Ακολουθεί πληρωμή 25%.
+              </p>
+            </div>
+            <div class="border border-gray-200 rounded-lg p-4">
+              <h3 class="text-sm font-semibold text-gray-900 mb-2">03. Εκπαίδευση</h3>
+              <p class="text-sm text-gray-600">
+                Παράδοση έργου και εκπαίδευση για όλες τις λειτουργίες. Πληρωμή 25%.
+              </p>
+            </div>
+            <div class="border border-gray-200 rounded-lg p-4">
+              <h3 class="text-sm font-semibold text-gray-900 mb-2">04. Ολοκλήρωση</h3>
+              <p class="text-sm text-gray-600">
+                Δημοσίευση online και τελικός έλεγχος. Καταβάλλεται η τελευταία δόση 10%.
+              </p>
+            </div>
+          </div>
+        </section>
+
+        ${notes ? `
+        <section class="border-t pt-6 mt-8 bg-white rounded-xl p-6 shadow">
+          <h3 class="text-sm font-medium text-gray-500 mb-2">Σημειώσεις</h3>
+          <p class="text-sm text-gray-900 whitespace-pre-wrap">${escapeHtml(notes)}</p>
+        </section>
+        ` : ''}
+      </div>
+    </div>
+  </body>
+</html>`;
+}
+
+function escapeHtml(text: string): string {
+  const map: Record<string, string> = {
+    '&': '&amp;',
+    '<': '&lt;',
+    '>': '&gt;',
+    '"': '&quot;',
+    "'": '&#039;',
+  };
+  return text.replace(/[&<>"']/g, (m) => map[m]);
 }
