@@ -447,30 +447,108 @@ export default function OfferBuilder() {
                           <div className="bg-gray-50 border-t border-gray-200 p-4">
                             <p className="text-sm font-medium text-gray-700 mb-3">Extra Services:</p>
                             <div className="space-y-2 ml-6">
-                              {item.subProducts.map((subProduct) => (
-                                <label
-                                  key={subProduct.id}
-                                  className="flex items-start space-x-2 cursor-pointer"
-                                  onClick={(e) => e.stopPropagation()}
-                                >
-                                  <input
-                                    type="checkbox"
-                                    checked={isSubProductSelected(selectedCategory, item.id, subProduct.id)}
-                                    onChange={() => handleSubProductToggle(selectedCategory, item.id, subProduct)}
-                                    className="mt-1 h-4 w-4 text-indigo-600 focus:ring-indigo-500 border-gray-300 rounded"
-                                  />
-                                  <div className="flex-1">
-                                    <p className="text-sm font-medium text-gray-900">{subProduct.label}</p>
-                                    <p className="text-xs text-gray-600">{subProduct.description}</p>
-                                    <p className="text-xs font-semibold text-indigo-600 mt-1">
-                                      +{new Intl.NumberFormat('en-US', {
-                                        style: 'currency',
-                                        currency: 'EUR',
-                                      }).format(subProduct.price)}
-                                    </p>
+                              {item.subProducts.map((subProduct) => {
+                                const subProductKey = `${itemKey}-${subProduct.id}`;
+                                const isSubExpanded = expandedSubProducts.has(subProductKey);
+                                const hasNestedSubProducts = subProduct.subProducts && subProduct.subProducts.length > 0;
+                                const selectedNested = selectedNestedSubProducts.get(subProductKey);
+                                const nestedTotal = subProduct.subProducts
+                                  ?.filter(nsp => selectedNested?.has(nsp.id))
+                                  .reduce((sum, nsp) => sum + nsp.price, 0) || 0;
+                                
+                                return (
+                                  <div key={subProduct.id} className="border border-gray-200 rounded-lg overflow-hidden">
+                                    <label
+                                      className="flex items-start space-x-2 cursor-pointer p-2 hover:bg-gray-100"
+                                      onClick={(e) => e.stopPropagation()}
+                                    >
+                                      <input
+                                        type="checkbox"
+                                        checked={isSubProductSelected(selectedCategory, item.id, subProduct.id)}
+                                        onChange={() => handleSubProductToggle(selectedCategory, item.id, subProduct)}
+                                        className="mt-1 h-4 w-4 text-indigo-600 focus:ring-indigo-500 border-gray-300 rounded"
+                                      />
+                                      <div className="flex-1">
+                                        <div className="flex items-center justify-between">
+                                          <div className="flex-1">
+                                            <p className="text-sm font-medium text-gray-900">{subProduct.label}</p>
+                                            <p className="text-xs text-gray-600">{subProduct.description}</p>
+                                            <div className="flex items-center gap-2 mt-1">
+                                              <p className="text-xs font-semibold text-indigo-600">
+                                                +{new Intl.NumberFormat('en-US', {
+                                                  style: 'currency',
+                                                  currency: 'EUR',
+                                                }).format(subProduct.price)}
+                                              </p>
+                                              {isSubProductSelected(selectedCategory, item.id, subProduct.id) && nestedTotal > 0 && (
+                                                <>
+                                                  <span className="text-gray-400 text-xs">+</span>
+                                                  <p className="text-xs text-gray-500">
+                                                    {new Intl.NumberFormat('en-US', {
+                                                      style: 'currency',
+                                                      currency: 'EUR',
+                                                    }).format(nestedTotal)} (nested)
+                                                  </p>
+                                                </>
+                                              )}
+                                            </div>
+                                          </div>
+                                          {hasNestedSubProducts && (
+                                            <button
+                                              type="button"
+                                              onClick={(e) => {
+                                                e.stopPropagation();
+                                                toggleSubProductExpanded(selectedCategory, item.id, subProduct.id);
+                                              }}
+                                              className="ml-2 text-indigo-600 hover:text-indigo-700"
+                                            >
+                                              <svg
+                                                className={`w-4 h-4 transition-transform ${isSubExpanded ? 'rotate-90' : ''}`}
+                                                fill="none"
+                                                stroke="currentColor"
+                                                viewBox="0 0 24 24"
+                                              >
+                                                <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M9 5l7 7-7 7" />
+                                              </svg>
+                                            </button>
+                                          )}
+                                        </div>
+                                      </div>
+                                    </label>
+                                    {isSubExpanded && hasNestedSubProducts && isSubProductSelected(selectedCategory, item.id, subProduct.id) && (
+                                      <div className="bg-gray-100 border-t border-gray-200 p-3 ml-8">
+                                        <p className="text-xs font-medium text-gray-700 mb-2">Nested Services:</p>
+                                        <div className="space-y-1">
+                                          {subProduct.subProducts.map((nestedSubProduct) => (
+                                            <label
+                                              key={nestedSubProduct.id}
+                                              className="flex items-start space-x-2 cursor-pointer"
+                                              onClick={(e) => e.stopPropagation()}
+                                            >
+                                              <input
+                                                type="checkbox"
+                                                checked={isSubProductSelected(selectedCategory, item.id, nestedSubProduct.id, subProduct.id)}
+                                                onChange={() => handleSubProductToggle(selectedCategory, item.id, nestedSubProduct, subProduct.id)}
+                                                className="mt-1 h-3 w-3 text-indigo-600 focus:ring-indigo-500 border-gray-300 rounded"
+                                              />
+                                              <div className="flex-1">
+                                                <p className="text-xs font-medium text-gray-900">{nestedSubProduct.label}</p>
+                                                <p className="text-xs text-gray-600">{nestedSubProduct.description}</p>
+                                                <p className="text-xs font-semibold text-indigo-600 mt-1">
+                                                  +{new Intl.NumberFormat('en-US', {
+                                                    style: 'currency',
+                                                    currency: 'EUR',
+                                                  }).format(nestedSubProduct.price)}
+                                                </p>
+                                              </div>
+                                            </label>
+                                          ))}
+                                        </div>
+                                      </div>
+                                    )}
                                   </div>
-                                </label>
-                              ))}
+                                );
+                              })}
                             </div>
                           </div>
                         )}
