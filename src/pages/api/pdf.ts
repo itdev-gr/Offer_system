@@ -3,7 +3,7 @@ import { requireUser } from '../../lib/auth/middleware';
 import { getAdminDb } from '../../lib/firebase/admin';
 import { renderPdfTemplate } from '../../lib/pdf-template';
 import puppeteer from 'puppeteer-core';
-import chromium from '@sparticuz/chromium-min';
+import chromium from '@sparticuz/chromium';
 import type { OfferItem } from '../../lib/money';
 
 export const POST: APIRoute = async ({ request, cookies, url }) => {
@@ -78,10 +78,11 @@ export const POST: APIRoute = async ({ request, cookies, url }) => {
     });
 
     // Generate PDF using Puppeteer with Chromium for serverless
+    const executablePath = await chromium.executablePath();
     const browser = await puppeteer.launch({
       args: chromium.args,
       defaultViewport: chromium.defaultViewport,
-      executablePath: await chromium.executablePath(),
+      executablePath,
       headless: chromium.headless,
     });
     
