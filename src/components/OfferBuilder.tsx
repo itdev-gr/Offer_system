@@ -8,6 +8,7 @@ interface SubProduct {
   label: string;
   description: string;
   price: number;
+  subProducts?: SubProduct[]; // Nested sub-products
 }
 
 interface CatalogItem {
@@ -41,7 +42,9 @@ export default function OfferBuilder() {
   const [isAdmin, setIsAdmin] = useState(false);
   const [isLoadingCatalog, setIsLoadingCatalog] = useState(true);
   const [expandedItems, setExpandedItems] = useState<Set<string>>(new Set());
+  const [expandedSubProducts, setExpandedSubProducts] = useState<Set<string>>(new Set());
   const [selectedSubProducts, setSelectedSubProducts] = useState<Map<string, Set<string>>>(new Map());
+  const [selectedNestedSubProducts, setSelectedNestedSubProducts] = useState<Map<string, Set<string>>>(new Map());
 
   const toggleItemExpanded = (category: string, itemId: string) => {
     const key = `${category}-${itemId}`;
@@ -81,36 +84,77 @@ export default function OfferBuilder() {
     }
   };
 
-  const handleSubProductToggle = (category: string, itemId: string, subProduct: SubProduct) => {
+  const handleSubProductToggle = (category: string, itemId: string, subProduct: SubProduct, parentSubProductId?: string) => {
     const key = `${category}-${itemId}`;
-    const newSelectedSubProducts = new Map(selectedSubProducts);
     
-    if (!newSelectedSubProducts.has(key)) {
-      newSelectedSubProducts.set(key, new Set());
-    }
-    
-    const subProductsSet = newSelectedSubProducts.get(key)!;
-    if (subProductsSet.has(subProduct.id)) {
-      subProductsSet.delete(subProduct.id);
+    if (parentSubProductId) {
+      // Handle nested sub-product
+      const nestedKey = `${key}-${parentSubProductId}`;
+      const newSelectedNested = new Map(selectedNestedSubProducts);
+      
+      if (!newSelectedNested.has(nestedKey)) {
+        newSelectedNested.set(nestedKey, new Set());
+      }
+      
+      const nestedSet = newSelectedNested.get(nestedKey)!;
+      if (nestedSet.has(subProduct.id)) {
+        nestedSet.delete(subProduct.id);
+      } else {
+        nestedSet.add(subProduct.id);
+      }
+      
+      setSelectedNestedSubProducts(newSelectedNested);
     } else {
-      subProductsSet.add(subProduct.id);
+      // Handle top-level sub-product
+      const newSelectedSubProducts = new Map(selectedSubProducts);
+      
+      if (!newSelectedSubProducts.has(key)) {
+        newSelectedSubProducts.set(key, new Set());
+      }
+      
+      const subProductsSet = newSelectedSubProducts.get(key)!;
+      if (subProductsSet.has(subProduct.id)) {
+        subProductsSet.delete(subProduct.id);
+      } else {
+        subProductsSet.add(subProduct.id);
+      }
+      
+      setSelectedSubProducts(newSelectedSubProducts);
     }
-    
-    setSelectedSubProducts(newSelectedSubProducts);
     
     // Update the main item's lineTotal
+    updateItemLineTotal(category, itemId);
+  };
+
+  const updateItemLineTotal = (category: string, itemId: string) => {
     const itemIndex = selectedItems.findIndex(
       (si) => si.itemId === itemId && si.category === category
     );
     
     if (itemIndex >= 0) {
       const item = selectedItems[itemIndex];
-      const selectedSubs = Array.from(subProductsSet).map(subId => {
-        const catalogItem = catalog[category]?.find(i => i.id === itemId);
-        return catalogItem?.subProducts?.find(sp => sp.id === subId);
-      }).filter(Boolean) as SubProduct[];
+      const catalogItem = catalog[category]?.find(i => i.id === itemId);
+      if (!catalogItem) return;
       
-      const subProductsTotal = selectedSubs.reduce((sum, sp) => sum + sp.price, 0);
+      const key = `${category}-${itemId}`;
+      const selectedSubs = selectedSubProducts.get(key) || new Set();
+      
+      // Calculate top-level sub-products total
+      let subProductsTotal = catalogItem.subProducts
+        ?.filter(sp => selectedSubs.has(sp.id))
+        .reduce((sum, sp) => {
+          let nestedTotal = 0;
+          // Add nested sub-products if selected
+          if (sp.subProducts) {
+            const nestedKey = `${key}-${sp.id}`;
+            const selectedNested = selectedNestedSubProducts.get(nestedKey) || new Set();
+            nestedTotal = sp.subProducts
+              .filter(nsp => selectedNested.has(nsp.id))
+              .reduce((nestedSum, nsp) => nestedSum + nsp.price, 0);
+          }
+          return sum + sp.price + nestedTotal;
+        }, 0) || 0;
+      
       const newItems = [...selectedItems];
       newItems[itemIndex] = {
         ...item,
@@ -120,8 +164,23 @@ export default function OfferBuilder() {
     }
   };
 
-  const isSubProductSelected = (category: string, itemId: string, subProductId: string): boolean => {
+  const toggleSubProductExpanded = (category: string, itemId: string, subProductId: string) => {
+    const key = `${category}-${itemId}-${subProductId}`;
+    const newExpanded = new Set(expandedSubProducts);
+    if (newExpanded.has(key)) {
+      newExpanded.delete(key);
+    } else {
+      newExpanded.add(key);
+    }
+    setExpandedSubProducts(newExpanded);
+  };
+
+  const isSubProductSelected = (category: string, itemId: string, subProductId: string, parentSubProductId?: string): boolean => {
     const key = `${category}-${itemId}`;
+    if (parentSubProductId) {
+      const nestedKey = `${key}-${parentSubProductId}`;
+      return selectedNestedSubProducts.get(nestedKey)?.has(subProductId) || false;
+    }
     return selectedSubProducts.get(key)?.has(subProductId) || false;
   };
 
@@ -305,7 +364,17 @@ export default function OfferBuilder() {
                     const selectedSubs = selectedSubProducts.get(itemKey);
                     const subProductsTotal = item.subProducts
                       ?.filter(sp => selectedSubs?.has(sp.id))
-                      .reduce((sum, sp) => sum + sp.price, 0) || 0;
+                      .reduce((sum, sp) => {
+                        let nestedTotal = 0;
+                        if (sp.subProducts) {
+                          const nestedKey = `${itemKey}-${sp.id}`;
+                          const selectedNested = selectedNestedSubProducts.get(nestedKey) || new Set();
+                          nestedTotal = sp.subProducts
+                            .filter(nsp => selectedNested.has(nsp.id))
+                            .reduce((nestedSum, nsp) => nestedSum + nsp.price, 0);
+                        }
+                        return sum + sp.price + nestedTotal;
+                      }, 0) || 0;
                     const totalPrice = item.price + subProductsTotal;
                     const isSelected = isItemSelected(selectedCategory, item.id);
                     
