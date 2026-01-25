@@ -27,28 +27,160 @@
   ],
   "Local SEO": [
     {
-      "id": "local-seo-audit",
-      "label": "Local SEO Audit",
-      "description": "Complete analysis of local search presence",
-      "price": 500
+      "id": "local-seo-local",
+      "label": "Local Plan",
+      "description": "Βασικό πακέτο Local SEO με όλα τα βασικά features",
+      "price": 200,
+      "subProducts": [
+        {
+          "id": "installation-local",
+          "label": "Κόστος Εγκατάστασης",
+          "description": "Εφάπαξ κόστος εγκατάστασης",
+          "price": 250
+        },
+        {
+          "id": "feature-phone-calls",
+          "label": "Περισσότερα τηλεφωνήματα",
+          "description": "",
+          "price": 0
+        },
+        {
+          "id": "feature-messages-forms",
+          "label": "Περισσότερα μηνύματα/φόρμες",
+          "description": "",
+          "price": 0
+        },
+        {
+          "id": "feature-visits",
+          "label": "Περισσότερες επισκέψεις",
+          "description": "",
+          "price": 0
+        },
+        {
+          "id": "feature-maps-directions",
+          "label": "Περισσότερες οδηγίες Maps",
+          "description": "",
+          "price": 0
+        },
+        {
+          "id": "feature-nearby-customers",
+          "label": "Πελάτες \"κοντά σου\"",
+          "description": "",
+          "price": 0
+        },
+        {
+          "id": "feature-near-me",
+          "label": "Εμφάνιση \"κοντά μου\"",
+          "description": "",
+          "price": 0
+        },
+        {
+          "id": "feature-google-rankings",
+          "label": "Καλύτερες θέσεις Google",
+          "description": "",
+          "price": 0
+        },
+        {
+          "id": "feature-maps-presence",
+          "label": "Καλύτερη παρουσία Maps",
+          "description": "",
+          "price": 0
+        },
+        {
+          "id": "feature-more-clicks",
+          "label": "Περισσότερα κλικ",
+          "description": "",
+          "price": 0
+        },
+        {
+          "id": "feature-more-bookings",
+          "label": "Περισσότερες κρατήσεις",
+          "description": "",
+          "price": 0
+        },
+        {
+          "id": "feature-more-reviews",
+          "label": "Περισσότερες κριτικές",
+          "description": "",
+          "price": 0
+        },
+        {
+          "id": "feature-better-reputation",
+          "label": "Καλύτερη φήμη",
+          "description": "",
+          "price": 0
+        },
+        {
+          "id": "feature-more-trust",
+          "label": "Περισσότερη εμπιστοσύνη",
+          "description": "",
+          "price": 0
+        },
+        {
+          "id": "feature-more-sales",
+          "label": "Περισσότερες πωλήσεις",
+          "description": "",
+          "price": 0
+        },
+        {
+          "id": "feature-stable-visibility",
+          "label": "Σταθερή προβολή",
+          "description": "",
+          "price": 0
+        },
+        {
+          "id": "feature-competitive-advantage",
+          "label": "Πλεονέκτημα ανταγωνισμού",
+          "description": "",
+          "price": 0
+        }
+      ]
     },
     {
-      "id": "local-seo-optimization",
-      "label": "Local SEO Optimization",
-      "description": "Google Business Profile optimization and citations",
-      "price": 800
+      "id": "local-seo-growth",
+      "label": "Growth Plan",
+      "description": "Προχωρημένο πακέτο Local SEO με περιεχόμενο marketing και προσωπική στρατηγική",
+      "price": 299,
+      "subProducts": [
+        {
+          "id": "installation-growth",
+          "label": "Κόστος Εγκατάστασης",
+          "description": "Εφάπαξ κόστος εγκατάστασης",
+          "price": 350
+        },
+        {
+          "id": "feature-content-marketing",
+          "label": "Μάρκετινγκ περιεχομένου για τοπικό SEO",
+          "description": "",
+          "price": 0
+        },
+        {
+          "id": "feature-personal-strategy",
+          "label": "Προσωπική στρατηγική",
+          "description": "",
+          "price": 0
+        }
+      ]
     },
     {
-      "id": "local-seo-monthly",
-      "label": "Monthly Local SEO",
-      "description": "Ongoing local SEO management and reporting",
-      "price": 400
-    },
-    {
-      "id": "local-seo-reviews",
-      "label": "Review Management",
-      "description": "Review generation and reputation management",
-      "price": 300
+      "id": "local-seo-premium",
+      "label": "Premium Plan",
+      "description": "Πλήρες πακέτο Local SEO με διαχείριση πολλαπλών καναλιών",
+      "price": 600,
+      "subProducts": [
+        {
+          "id": "installation-premium",
+          "label": "Κόστος Εγκατάστασης",
+          "description": "Εφάπαξ κόστος εγκατάστασης",
+          "price": 500
+        },
+        {
+          "id": "feature-multi-channel",
+          "label": "Διαχείριση πολλαπλών καναλιών",
+          "description": "",
+          "price": 0
+        }
+      ]
     }
   ],
   "Web SEO": [
