@@ -227,13 +227,29 @@ const admin = await requireAdmin(Astro.cookies);
     async function loadCatalog() {
       try {
         const response = await fetch('/api/catalog');
-        if (!response.ok) throw new Error('Failed to load catalog');
-        catalog = await response.json();
+        if (!response.ok) {
+          const errorData = await response.json().catch(() => ({ error: 'Unknown error' }));
+          throw new Error(errorData.error || `HTTP ${response.status}: Failed to load catalog`);
+        }
+        const data = await response.json();
+        catalog = data || {};
+        console.log('Catalog loaded:', catalog);
         renderCatalog();
-      } catch (error) {
+      } catch (error: any) {
         console.error('Error loading catalog:', error);
-        document.getElementById('productsContainer')!.innerHTML = 
-          '<p class="text-red-500 text-center py-8">Failed to load products. Please refresh the page.</p>';
+        const container = document.getElementById('productsContainer')!;
+        container.innerHTML = `
+          <div class="bg-red-50 border border-red-200 rounded-lg p-6">
+            <p class="text-red-800 font-semibold mb-2">Failed to load products</p>
+            <p class="text-red-600 text-sm">${escapeHtml(error.message || 'Unknown error')}</p>
+            <button
+              onclick="loadCatalog()"
+              class="mt-4 px-4 py-2 bg-red-600 text-white rounded-md hover:bg-red-700 text-sm"
+            >
+              Retry
+            </button>
+          </div>
+        `;
       }
     }
 
@@ -241,10 +257,12 @@ const admin = await requireAdmin(Astro.cookies);
     function renderCatalog() {
       const container = document.getElementById('productsContainer')!;
       
-      if (Object.keys(catalog).length === 0) {
+      if (!catalog || Object.keys(catalog).length === 0) {
         container.innerHTML = '<p class="text-gray-500 text-center py-8">No categories yet. Add a category to get started.</p>';
         return;
       }
+      
+      console.log('Rendering catalog with categories:', Object.keys(catalog));
 
       container.innerHTML = Object.entries(catalog).map(([category, items]) => `
         <div class="bg-white rounded-lg shadow-md p-6">
