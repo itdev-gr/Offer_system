@@ -57,6 +57,21 @@ const admin = await requireAdmin(Astro.cookies);
         </div>
       </div>
 
+      <!-- Bulk Add Sub-Products Section -->
+      <div class="bg-white rounded-lg shadow-md p-6 mb-6">
+        <h2 class="text-xl font-bold text-gray-900 mb-4">Bulk Actions</h2>
+        <p class="text-sm text-gray-600 mb-4">
+          Add 5 common sub-products (Extra Pages, SEO Setup, Contact Form, Analytics Setup, SSL Certificate) to all products in website categories.
+        </p>
+        <button
+          id="addSubProductsBtn"
+          class="px-6 py-2 bg-green-600 text-white rounded-md hover:bg-green-700 font-medium"
+        >
+          Add 5 Sub-Products to All Website Products
+        </button>
+        <div id="addSubProductsResult" class="mt-4 hidden"></div>
+      </div>
+
       <!-- Products by Category -->
       <div id="productsContainer" class="space-y-6">
         <p class="text-gray-500 text-center py-8">Loading products...</p>
@@ -555,8 +570,57 @@ const admin = await requireAdmin(Astro.cookies);
       return div.innerHTML;
     }
 
+    // Add sub-products to all website products
+    async function addSubProductsToAll() {
+      const btn = document.getElementById('addSubProductsBtn') as HTMLButtonElement;
+      const resultDiv = document.getElementById('addSubProductsResult') as HTMLDivElement;
+      
+      if (!confirm('This will add 5 sub-products to all products in website categories. Continue?')) {
+        return;
+      }
+
+      btn.disabled = true;
+      btn.textContent = 'Adding sub-products...';
+      resultDiv.classList.add('hidden');
+      resultDiv.innerHTML = '';
+
+      try {
+        const response = await fetch('/api/add-subproducts', {
+          method: 'POST',
+        });
+
+        if (!response.ok) {
+          const error = await response.json();
+          throw new Error(error.error || 'Failed to add sub-products');
+        }
+
+        const data = await response.json();
+        resultDiv.classList.remove('hidden');
+        resultDiv.className = 'mt-4 p-4 bg-green-50 border border-green-200 rounded-md';
+        resultDiv.innerHTML = `
+          <p class="text-green-800 font-semibold">✓ Successfully added ${data.totalAdded} sub-products!</p>
+          <details class="mt-2">
+            <summary class="text-sm text-green-700 cursor-pointer">View details</summary>
+            <ul class="mt-2 text-xs text-green-600 list-disc list-inside max-h-40 overflow-y-auto">
+              ${data.results.map((r: string) => `<li>${escapeHtml(r)}</li>`).join('')}
+            </ul>
+          </details>
+        `;
+        
+        await loadCatalog();
+      } catch (error: any) {
+        resultDiv.classList.remove('hidden');
+        resultDiv.className = 'mt-4 p-4 bg-red-50 border border-red-200 rounded-md';
+        resultDiv.innerHTML = `<p class="text-red-800">Error: ${escapeHtml(error.message || 'Failed to add sub-products')}</p>`;
+      } finally {
+        btn.disabled = false;
+        btn.textContent = 'Add 5 Sub-Products to All Website Products';
+      }
+    }
+
     // Event listeners
     document.getElementById('addCategoryBtn')!.addEventListener('click', addCategory);
+    document.getElementById('addSubProductsBtn')!.addEventListener('click', addSubProductsToAll);
     document.getElementById('editProductForm')!.addEventListener('submit', saveProduct);
     document.getElementById('closeModalBtn')!.addEventListener('click', closeModal);
     document.getElementById('cancelEditBtn')!.addEventListener('click', closeModal);
