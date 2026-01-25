@@ -40,7 +40,16 @@ const admin = await requireAdmin(Astro.cookies);
 
       <!-- Add Category Section -->
       <div class="bg-white rounded-lg shadow-md p-6 mb-6">
-        <h2 class="text-xl font-bold text-gray-900 mb-4">Add New Category</h2>
+        <div class="flex justify-between items-center mb-4">
+          <h2 class="text-xl font-bold text-gray-900">Add New Category</h2>
+          <button
+            onclick="migrateFromJson()"
+            class="px-4 py-2 bg-green-600 text-white rounded-md hover:bg-green-700 text-sm font-medium"
+            title="Migrate catalog from catalog.json file"
+          >
+            🔄 Migrate from JSON
+          </button>
+        </div>
         <div class="flex gap-2">
           <input
             type="text"
