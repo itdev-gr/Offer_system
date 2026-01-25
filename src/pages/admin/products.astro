@@ -705,8 +705,10 @@ const admin = await requireAdmin(Astro.cookies);
     (window as any).addSubProduct = addSubProduct;
     (window as any).editSubProduct = editSubProduct;
     (window as any).deleteSubProduct = deleteSubProduct;
+    (window as any).loadCatalog = loadCatalog;
 
     // Load catalog on page load
+    console.log('Page loaded, fetching catalog...');
     loadCatalog();
   </script>
 </Layout>
