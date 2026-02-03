@@ -91,54 +91,42 @@
   ],
   "AI SEO": [
     {
-      "id": "ai-seo-content",
-      "label": "AI Content Optimization",
-      "description": "AI-powered content creation and optimization",
-      "price": 1200
+      "id": "ai-seo",
+      "label": "AI SEO",
+      "description": "ΑΙ περιεχόμενο τύπου ChatGPT & Gemini, έξυπνη εύρεση λέξεων που φέρνουν πελάτες, περιεχόμενο που απαντά στις ερωτήσεις των πελατών σου, ανάλυση ανταγωνισμού με ΑΙ, βελτιστοποίηση περιεχομένου για ΑΙ Search αποτελέσματα (Google AI Overviews). Τιμή ανά μήνα.",
+      "price": 350
     },
     {
-      "id": "ai-seo-analysis",
-      "label": "AI SEO Analysis",
-      "description": "Advanced AI-driven SEO insights and recommendations",
-      "price": 900
-    },
-    {
-      "id": "ai-seo-automation",
-      "label": "SEO Automation Setup",
-      "description": "Automated SEO workflows and reporting",
-      "price": 2000
-    },
-    {
-      "id": "ai-seo-monthly",
-      "label": "Monthly AI SEO",
-      "description": "Ongoing AI-powered SEO management",
-      "price": 1000
+      "id": "ai-seo-premium",
+      "label": "AI SEO Premium",
+      "description": "Όλα τα AI SEO + AI Chatbot που συλλέγει leads και απαντά έξυπνα, εκπαίδευση ΑΙ με δεδομένα της επιχείρησής σου, συνεχής προσαρμογή σε αλλαγές αλγορίθμων, μηνιαία ανασκόπηση στρατηγικής ΑΙ. Τιμή ανά μήνα.",
+      "price": 550
     }
   ],
   "Social Media": [
     {
-      "id": "social-strategy",
-      "label": "Social Media Strategy",
-      "description": "Complete social media strategy and content plan",
-      "price": 800
+      "id": "social-starter-video",
+      "label": "Starter Video Pack (4 ΒΙΝΤΕΟ & 2 POSTS / μήνα)",
+      "description": "Ιδανικό για επιχειρήσεις που ξεκινούν με video marketing. Ανάλυση ανταγωνισμού & trends με AI, 4 custom scenarios, 2 ώρες γυρίσματος, επεξεργασία με υπότιτλους και μουσική, 2 posts, publication σε Instagram, Facebook, TikTok, YouTube Shorts, 1 Free Revision. Τιμή ανά μήνα.",
+      "price": 390
     },
     {
-      "id": "social-content",
-      "label": "Content Creation",
-      "description": "Monthly social media content creation (20 posts)",
-      "price": 600
+      "id": "social-growth-video",
+      "label": "Growth Video Pack (8 ΒΙΝΤΕΟ & 4 POSTS / μήνα)",
+      "description": "Για brands που θέλουν συνεχή ροή περιεχομένου και αναγνωρισιμότητα. Όλα τα Starter + 4 επιπλέον concept videos, 4 ώρες γυρίσματος, promotion μέσω ads, 4 stories, προσωπικός video consultant. Τιμή ανά μήνα.",
+      "price": 690
     },
     {
-      "id": "social-management",
-      "label": "Social Media Management",
-      "description": "Daily posting, engagement, and community management",
-      "price": 1000
+      "id": "social-performance-video",
+      "label": "Performance Video Pack (12 ΒΙΝΤΕΟ & 8 POSTS / μήνα)",
+      "description": "Για επιχειρήσεις που θέλουν απόλυτο performance και αύξηση πωλήσεων. Όλα τα Growth + επιπλέον model & location options, 6 ώρες γυρίσματος, full storytelling series, 8 stories. Τιμή ανά μήνα.",
+      "price": 990
     },
     {
-      "id": "social-ads",
-      "label": "Social Media Advertising",
-      "description": "Paid social media campaign management",
-      "price": 1500
+      "id": "social-edit-only",
+      "label": "Edit Only Pack (4 ΒΙΝΤΕΟ & 4 POSTS / μήνα)",
+      "description": "Ιδανικό για επιχειρήσεις με έδρα εκτός Αθηνών. Script για 4 videos, ο πελάτης γυρίζει και στέλνει υλικό, επεξεργασία video, υπότιτλοι και μουσική, 4 posts, post calendar, SEO friendly captions, publication σε social media, analytics. Τιμή ανά μήνα.",
+      "price": 290
     }
   ]
 }

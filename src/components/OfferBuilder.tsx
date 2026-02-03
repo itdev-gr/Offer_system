@@ -45,6 +45,57 @@ export default function OfferBuilder() {
   const [expandedSubProducts, setExpandedSubProducts] = useState<Set<string>>(new Set());
   const [selectedSubProducts, setSelectedSubProducts] = useState<Map<string, Set<string>>>(new Map());
   const [selectedNestedSubProducts, setSelectedNestedSubProducts] = useState<Map<string, Set<string>>>(new Map());
+  const [extraVideosByCategory, setExtraVideosByCategory] = useState<Record<string, number>>({});
+  const [extraPostsByCategory, setExtraPostsByCategory] = useState<Record<string, number>>({});
+
+  const getSyntheticExtraItems = (): OfferItem[] => {
+    const result: OfferItem[] = [];
+    categories.forEach((cat) => {
+      const qtyV = extraVideosByCategory[cat] || 0;
+      if (qtyV > 0) {
+        result.push({
+          category: cat,
+          itemId: 'extra-video',
+          label: 'Extra video',
+          description: '€50 per video',
+          unitPrice: 50,
+          qty: qtyV,
+          lineTotal: 50 * qtyV,
+        });
+      }
+      const qtyP = extraPostsByCategory[cat] || 0;
+      if (qtyP > 0) {
+        result.push({
+          category: cat,
+          itemId: 'extra-post',
+          label: 'Extra post',
+          description: '€25 per post',
+          unitPrice: 25,
+          qty: qtyP,
+          lineTotal: 25 * qtyP,
+        });
+      }
+    });
+    return result;
+  };
+
+  const allItemsForOffer = [...selectedItems, ...getSyntheticExtraItems()];
+  const hasAnyItems = allItemsForOffer.length > 0;
+
+  const handleItemsChangeFromSummary = (newItems: OfferItem[]) => {
+    const catalogItems = newItems.filter((i) => i.itemId !== 'extra-video' && i.itemId !== 'extra-post');
+    const newExtraVideos: Record<string, number> = { ...extraVideosByCategory };
+    const newExtraPosts: Record<string, number> = { ...extraPostsByCategory };
+    newItems.filter((i) => i.itemId === 'extra-video').forEach((i) => {
+      newExtraVideos[i.category] = i.qty;
+    });
+    newItems.filter((i) => i.itemId === 'extra-post').forEach((i) => {
+      newExtraPosts[i.category] = i.qty;
+    });
+    setSelectedItems(catalogItems);
+    setExtraVideosByCategory(newExtraVideos);
+    setExtraPostsByCategory(newExtraPosts);
+  };
 
   const toggleItemExpanded = (category: string, itemId: string) => {
     const key = `${category}-${itemId}`;
@@ -192,6 +243,8 @@ export default function OfferBuilder() {
 
   const handleClearSelection = () => {
     setSelectedItems([]);
+    setExtraVideosByCategory({});
+    setExtraPostsByCategory({});
   };
 
   useEffect(() => {
@@ -257,7 +310,7 @@ export default function OfferBuilder() {
 
     try {
       const { calculateTotals } = await import('../lib/money');
-      const totals = calculateTotals(selectedItems, discountPercent, vatPercent);
+      const totals = calculateTotals(allItemsForOffer, discountPercent, vatPercent);
 
       const response = await fetch('/api/create-offer', {
         method: 'POST',
@@ -271,7 +324,7 @@ export default function OfferBuilder() {
           vatPercent,
           validityDays,
           notes: notes.trim() || undefined,
-          items: selectedItems,
+          items: allItemsForOffer,
           totals,
         }),
       });
@@ -400,7 +453,7 @@ export default function OfferBuilder() {
                                       style: 'currency',
                                       currency: 'EUR',
                                     }).format(item.price)}
-                                    {['Local SEO', 'Web SEO'].includes(selectedCategory) && ' / μήνα'}
+                                    {['Local SEO', 'Web SEO', 'AI SEO', 'Social Media'].includes(selectedCategory) && ' / μήνα'}
                                   </p>
                                   {isSelected && subProductsTotal > 0 && (
                                     <>
@@ -561,6 +614,40 @@ export default function OfferBuilder() {
                   <p className="text-gray-500 text-center py-8">No products in this category.</p>
                 )}
 
+                {selectedCategory === 'Social Media' && (
+                  <div className="mt-6 pt-6 border-t border-gray-200">
+                    <p className="text-sm font-medium text-gray-700 mb-3">Extras (this category)</p>
+                    <div className="flex flex-wrap gap-6">
+                      <div className="flex items-center gap-2">
+                        <label className="text-sm text-gray-600">Extra videos (€50 each):</label>
+                        <input
+                          type="number"
+                          min={0}
+                          value={extraVideosByCategory[selectedCategory] ?? 0}
+                          onChange={(e) => {
+                            const v = Math.max(0, parseInt(e.target.value, 10) || 0);
+                            setExtraVideosByCategory((prev) => ({ ...prev, [selectedCategory]: v }));
+                          }}
+                          className="w-20 px-2 py-1.5 text-sm border border-gray-300 rounded-md"
+                        />
+                      </div>
+                      <div className="flex items-center gap-2">
+                        <label className="text-sm text-gray-600">Extra posts (€25 each):</label>
+                        <input
+                          type="number"
+                          min={0}
+                          value={extraPostsByCategory[selectedCategory] ?? 0}
+                          onChange={(e) => {
+                            const v = Math.max(0, parseInt(e.target.value, 10) || 0);
+                            setExtraPostsByCategory((prev) => ({ ...prev, [selectedCategory]: v }));
+                          }}
+                          className="w-20 px-2 py-1.5 text-sm border border-gray-300 rounded-md"
+                        />
+                      </div>
+                    </div>
+                  </div>
+                )}
+
                 <div className="mt-8 border-t pt-6">
                   <h3 className="text-lg font-semibold mb-4">Offer Details</h3>
                   <div className="space-y-4">
@@ -685,11 +772,11 @@ export default function OfferBuilder() {
           {/* Summary Panel at Bottom */}
           <div className="mt-6">
             <OfferSummary
-              items={selectedItems}
+              items={allItemsForOffer}
               discountPercent={discountPercent}
               vatPercent={vatPercent}
               currency={currency}
-              onItemsChange={setSelectedItems}
+              onItemsChange={handleItemsChangeFromSummary}
             />
 
             <div className="mt-4 flex gap-4">
@@ -697,13 +784,13 @@ export default function OfferBuilder() {
                 type="button"
                 onClick={handleClearSelection}
                 className="flex-1 px-4 py-2 text-sm font-medium text-gray-700 bg-white border border-gray-300 rounded-md hover:bg-gray-50"
-                disabled={selectedItems.length === 0}
+                disabled={!hasAnyItems}
               >
                 Clear Selection
               </button>
               <button
                 type="submit"
-                disabled={isSubmitting || selectedItems.length === 0 || !clientName.trim()}
+                disabled={isSubmitting || !hasAnyItems || !clientName.trim()}
                 className="flex-1 px-4 py-2 text-sm font-medium text-white bg-indigo-600 rounded-md hover:bg-indigo-700 disabled:bg-gray-400 disabled:cursor-not-allowed"
               >
                 {isSubmitting ? 'Creating...' : 'Create Offer'}

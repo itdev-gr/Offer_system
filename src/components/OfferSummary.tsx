@@ -23,11 +23,10 @@ export default function OfferSummary({
     setLocalItems(items);
   }, [items]);
 
-  const handleQtyChange = (itemId: string, newQty: number) => {
+  const handleQtyChange = (category: string, itemId: string, newQty: number) => {
     if (newQty < 1) return;
-    
     const updated = localItems.map((item) =>
-      item.itemId === itemId
+      item.category === category && item.itemId === itemId
         ? { ...item, qty: newQty, lineTotal: item.unitPrice * newQty }
         : item
     );
@@ -35,8 +34,8 @@ export default function OfferSummary({
     onItemsChange(updated);
   };
 
-  const handleRemove = (itemId: string) => {
-    const updated = localItems.filter((item) => item.itemId !== itemId);
+  const handleRemove = (category: string, itemId: string) => {
+    const updated = localItems.filter((item) => !(item.category === category && item.itemId === itemId));
     setLocalItems(updated);
     onItemsChange(updated);
   };
@@ -53,14 +52,14 @@ export default function OfferSummary({
         <>
           <div className="space-y-3 mb-4 max-h-96 overflow-y-auto">
             {localItems.map((item) => (
-              <div key={item.itemId} className="border-b pb-3 last:border-0">
+              <div key={`${item.category}-${item.itemId}`} className="border-b pb-3 last:border-0">
                 <div className="flex justify-between items-start mb-1">
                   <div className="flex-1">
                     <p className="font-medium text-sm">{item.label}</p>
                     <p className="text-xs text-gray-500">{item.category}</p>
                   </div>
                   <button
-                    onClick={() => handleRemove(item.itemId)}
+                    onClick={() => handleRemove(item.category, item.itemId)}
                     className="text-red-600 hover:text-red-800 text-sm ml-2"
                     type="button"
                   >
@@ -75,7 +74,7 @@ export default function OfferSummary({
                       min="1"
                       value={item.qty}
                       onChange={(e) =>
-                        handleQtyChange(item.itemId, parseInt(e.target.value) || 1)
+                        handleQtyChange(item.category, item.itemId, parseInt(e.target.value) || 1)
                       }
                       className="w-16 px-2 py-1 text-sm border border-gray-300 rounded"
                     />
