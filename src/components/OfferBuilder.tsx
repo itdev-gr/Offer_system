@@ -400,6 +400,7 @@ export default function OfferBuilder() {
                                       style: 'currency',
                                       currency: 'EUR',
                                     }).format(item.price)}
+                                    {['Local SEO', 'Web SEO'].includes(selectedCategory) && ' / μήνα'}
                                   </p>
                                   {isSelected && subProductsTotal > 0 && (
                                     <>
@@ -666,7 +667,7 @@ export default function OfferBuilder() {
 
                     <div>
                       <label className="block text-sm font-medium text-gray-700 mb-1">
-                        Notes
+                        Description (shown with each product on the offer)
                       </label>
                       <textarea
                         value={notes}

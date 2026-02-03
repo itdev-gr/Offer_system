@@ -29,7 +29,7 @@
     {
       "id": "local-seo-local",
       "label": "Local Plan",
-      "description": "Βασικό πακέτο Local SEO με όλα τα βασικά features",
+      "description": "Βασικό πακέτο Local SEO με όλα τα βασικά features. Τιμή ανά μήνα.",
       "price": 200,
       "subProducts": [
         {
@@ -37,109 +37,13 @@
           "label": "Κόστος Εγκατάστασης",
           "description": "Εφάπαξ κόστος εγκατάστασης",
           "price": 250
-        },
-        {
-          "id": "feature-phone-calls",
-          "label": "Περισσότερα τηλεφωνήματα",
-          "description": "",
-          "price": 0
-        },
-        {
-          "id": "feature-messages-forms",
-          "label": "Περισσότερα μηνύματα/φόρμες",
-          "description": "",
-          "price": 0
-        },
-        {
-          "id": "feature-visits",
-          "label": "Περισσότερες επισκέψεις",
-          "description": "",
-          "price": 0
-        },
-        {
-          "id": "feature-maps-directions",
-          "label": "Περισσότερες οδηγίες Maps",
-          "description": "",
-          "price": 0
-        },
-        {
-          "id": "feature-nearby-customers",
-          "label": "Πελάτες \"κοντά σου\"",
-          "description": "",
-          "price": 0
-        },
-        {
-          "id": "feature-near-me",
-          "label": "Εμφάνιση \"κοντά μου\"",
-          "description": "",
-          "price": 0
-        },
-        {
-          "id": "feature-google-rankings",
-          "label": "Καλύτερες θέσεις Google",
-          "description": "",
-          "price": 0
-        },
-        {
-          "id": "feature-maps-presence",
-          "label": "Καλύτερη παρουσία Maps",
-          "description": "",
-          "price": 0
-        },
-        {
-          "id": "feature-more-clicks",
-          "label": "Περισσότερα κλικ",
-          "description": "",
-          "price": 0
-        },
-        {
-          "id": "feature-more-bookings",
-          "label": "Περισσότερες κρατήσεις",
-          "description": "",
-          "price": 0
-        },
-        {
-          "id": "feature-more-reviews",
-          "label": "Περισσότερες κριτικές",
-          "description": "",
-          "price": 0
-        },
-        {
-          "id": "feature-better-reputation",
-          "label": "Καλύτερη φήμη",
-          "description": "",
-          "price": 0
-        },
-        {
-          "id": "feature-more-trust",
-          "label": "Περισσότερη εμπιστοσύνη",
-          "description": "",
-          "price": 0
-        },
-        {
-          "id": "feature-more-sales",
-          "label": "Περισσότερες πωλήσεις",
-          "description": "",
-          "price": 0
-        },
-        {
-          "id": "feature-stable-visibility",
-          "label": "Σταθερή προβολή",
-          "description": "",
-          "price": 0
-        },
-        {
-          "id": "feature-competitive-advantage",
-          "label": "Πλεονέκτημα ανταγωνισμού",
-          "description": "",
-          "price": 0
         }
       ]
     },
     {
       "id": "local-seo-growth",
       "label": "Growth Plan",
-      "description": "Προχωρημένο πακέτο Local SEO με περιεχόμενο marketing και προσωπική στρατηγική",
+      "description": "Προχωρημένο πακέτο Local SEO με περιεχόμενο marketing και προσωπική στρατηγική. Τιμή ανά μήνα.",
       "price": 299,
       "subProducts": [
         {
@@ -147,121 +51,13 @@
           "label": "Κόστος Εγκατάστασης",
           "description": "Εφάπαξ κόστος εγκατάστασης",
           "price": 350
-        },
-        {
-          "id": "feature-phone-calls",
-          "label": "Περισσότερα τηλεφωνήματα",
-          "description": "",
-          "price": 0
-        },
-        {
-          "id": "feature-messages-forms",
-          "label": "Περισσότερα μηνύματα/φόρμες",
-          "description": "",
-          "price": 0
-        },
-        {
-          "id": "feature-visits",
-          "label": "Περισσότερες επισκέψεις",
-          "description": "",
-          "price": 0
-        },
-        {
-          "id": "feature-maps-directions",
-          "label": "Περισσότερες οδηγίες Maps",
-          "description": "",
-          "price": 0
-        },
-        {
-          "id": "feature-nearby-customers",
-          "label": "Πελάτες \"κοντά σου\"",
-          "description": "",
-          "price": 0
-        },
-        {
-          "id": "feature-near-me",
-          "label": "Εμφάνιση \"κοντά μου\"",
-          "description": "",
-          "price": 0
-        },
-        {
-          "id": "feature-google-rankings",
-          "label": "Καλύτερες θέσεις Google",
-          "description": "",
-          "price": 0
-        },
-        {
-          "id": "feature-maps-presence",
-          "label": "Καλύτερη παρουσία Maps",
-          "description": "",
-          "price": 0
-        },
-        {
-          "id": "feature-more-clicks",
-          "label": "Περισσότερα κλικ",
-          "description": "",
-          "price": 0
-        },
-        {
-          "id": "feature-more-bookings",
-          "label": "Περισσότερες κρατήσεις",
-          "description": "",
-          "price": 0
-        },
-        {
-          "id": "feature-more-reviews",
-          "label": "Περισσότερες κριτικές",
-          "description": "",
-          "price": 0
-        },
-        {
-          "id": "feature-better-reputation",
-          "label": "Καλύτερη φήμη",
-          "description": "",
-          "price": 0
-        },
-        {
-          "id": "feature-more-trust",
-          "label": "Περισσότερη εμπιστοσύνη",
-          "description": "",
-          "price": 0
-        },
-        {
-          "id": "feature-more-sales",
-          "label": "Περισσότερες πωλήσεις",
-          "description": "",
-          "price": 0
-        },
-        {
-          "id": "feature-stable-visibility",
-          "label": "Σταθερή προβολή",
-          "description": "",
-          "price": 0
-        },
-        {
-          "id": "feature-competitive-advantage",
-          "label": "Πλεονέκτημα ανταγωνισμού",
-          "description": "",
-          "price": 0
-        },
-        {
-          "id": "feature-content-marketing",
-          "label": "Μάρκετινγκ περιεχομένου για τοπικό SEO",
-          "description": "",
-          "price": 0
-        },
-        {
-          "id": "feature-personal-strategy",
-          "label": "Προσωπική στρατηγική",
-          "description": "",
-          "price": 0
         }
       ]
     },
     {
       "id": "local-seo-premium",
       "label": "Premium Plan",
-      "description": "Πλήρες πακέτο Local SEO με διαχείριση πολλαπλών καναλιών",
+      "description": "Πλήρες πακέτο Local SEO με διαχείριση πολλαπλών καναλιών. Τιμή ανά μήνα.",
       "price": 600,
       "subProducts": [
         {
@@ -269,160 +65,28 @@
           "label": "Κόστος Εγκατάστασης",
           "description": "Εφάπαξ κόστος εγκατάστασης",
           "price": 500
-        },
-        {
-          "id": "feature-phone-calls",
-          "label": "Περισσότερα τηλεφωνήματα",
-          "description": "",
-          "price": 0
-        },
-        {
-          "id": "feature-messages-forms",
-          "label": "Περισσότερα μηνύματα/φόρμες",
-          "description": "",
-          "price": 0
-        },
-        {
-          "id": "feature-visits",
-          "label": "Περισσότερες επισκέψεις",
-          "description": "",
-          "price": 0
-        },
-        {
-          "id": "feature-maps-directions",
-          "label": "Περισσότερες οδηγίες Maps",
-          "description": "",
-          "price": 0
-        },
-        {
-          "id": "feature-nearby-customers",
-          "label": "Πελάτες \"κοντά σου\"",
-          "description": "",
-          "price": 0
-        },
-        {
-          "id": "feature-near-me",
-          "label": "Εμφάνιση \"κοντά μου\"",
-          "description": "",
-          "price": 0
-        },
-        {
-          "id": "feature-google-rankings",
-          "label": "Καλύτερες θέσεις Google",
-          "description": "",
-          "price": 0
-        },
-        {
-          "id": "feature-maps-presence",
-          "label": "Καλύτερη παρουσία Maps",
-          "description": "",
-          "price": 0
-        },
-        {
-          "id": "feature-more-clicks",
-          "label": "Περισσότερα κλικ",
-          "description": "",
-          "price": 0
-        },
-        {
-          "id": "feature-more-bookings",
-          "label": "Περισσότερες κρατήσεις",
-          "description": "",
-          "price": 0
-        },
-        {
-          "id": "feature-more-reviews",
-          "label": "Περισσότερες κριτικές",
-          "description": "",
-          "price": 0
-        },
-        {
-          "id": "feature-better-reputation",
-          "label": "Καλύτερη φήμη",
-          "description": "",
-          "price": 0
-        },
-        {
-          "id": "feature-more-trust",
-          "label": "Περισσότερη εμπιστοσύνη",
-          "description": "",
-          "price": 0
-        },
-        {
-          "id": "feature-more-sales",
-          "label": "Περισσότερες πωλήσεις",
-          "description": "",
-          "price": 0
-        },
-        {
-          "id": "feature-stable-visibility",
-          "label": "Σταθερή προβολή",
-          "description": "",
-          "price": 0
-        },
-        {
-          "id": "feature-competitive-advantage",
-          "label": "Πλεονέκτημα ανταγωνισμού",
-          "description": "",
-          "price": 0
-        },
-        {
-          "id": "feature-content-marketing",
-          "label": "Μάρκετινγκ περιεχομένου για τοπικό SEO",
-          "description": "",
-          "price": 0
-        },
-        {
-          "id": "feature-personal-strategy",
-          "label": "Προσωπική στρατηγική",
-          "description": "",
-          "price": 0
-        },
-        {
-          "id": "feature-multi-channel",
-          "label": "Διαχείριση πολλαπλών καναλιών",
-          "description": "",
-          "price": 0
-        },
-        {
-          "id": "feature-ab-testing",
-          "label": "Δοκιμές A/B & βελτιστοποίηση",
-          "description": "",
-          "price": 0
-        },
-        {
-          "id": "feature-local-media",
-          "label": "Συνεργασία με τοπικά media",
-          "description": "",
-          "price": 0
         }
       ]
     }
   ],
   "Web SEO": [
     {
-      "id": "web-seo-audit",
-      "label": "SEO Technical Audit",
-      "description": "Complete technical SEO analysis and recommendations",
+      "id": "web-seo-basic",
+      "label": "Βασικό",
+      "description": "Περισσότερες επισκέψεις από Google, καλύτερες θέσεις στις αναζητήσεις, περισσότερα leads και επαφές, αυξημένη online παρουσία, περισσότερες πωλήσεις, καλύτερη αξιοπιστία, περισσότερη εμπιστοσύνη. Τιμή ανά μήνα.",
+      "price": 300
+    },
+    {
+      "id": "web-seo-eshop",
+      "label": "Eshop",
+      "description": "Όλα τα Βασικό + σταθερή ανάπτυξη, βελτιστοποίηση product pages, περισσότερες παραγγελίες, καλύτερη conversion rate, περισσότερα reviews, αυξημένη brand awareness, πλεονέκτημα ανταγωνισμού. Τιμή ανά μήνα.",
       "price": 600
     },
     {
-      "id": "web-seo-onpage",
-      "label": "On-Page SEO",
-      "description": "Keyword optimization, meta tags, content optimization",
-      "price": 1000
-    },
-    {
-      "id": "web-seo-linkbuilding",
-      "label": "Link Building Campaign",
-      "description": "Strategic backlink acquisition and outreach",
-      "price": 1500
-    },
-    {
-      "id": "web-seo-monthly",
-      "label": "Monthly SEO Management",
-      "description": "Ongoing SEO optimization and reporting",
-      "price": 800
+      "id": "web-seo-enterprise",
+      "label": "Enterprise",
+      "description": "Όλα τα Eshop + Premium link building, στρατηγική περιεχομένου, International SEO, συνεχής βελτιστοποίηση, προσωπικός SEO consultant, dedicated account manager, προτεραιότητα support. Custom τιμή / μήνα.",
+      "price": 0
     }
   ],
   "AI SEO": [

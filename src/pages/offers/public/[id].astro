@@ -228,8 +228,8 @@ validUntil.setDate(validUntil.getDate() + (offer.validityDays || 14));
                       {categoryItems.map((item) => (
                         <li class="text-sm text-gray-700 list-disc list-inside" key={item.itemId}>
                           {item.label}
-                          {item.description && (
-                            <span class="text-xs text-gray-500"> — {item.description}</span>
+                          {(offer.notes ?? item.description) && (
+                            <span class="text-xs text-gray-500"> — {offer.notes ?? item.description}</span>
                           )}
                         </li>
                       ))}
@@ -269,15 +269,15 @@ validUntil.setDate(validUntil.getDate() + (offer.validityDays || 14));
                       <td class="px-4 py-3 text-sm text-gray-900">{item.category}</td>
                       <td class="px-4 py-3">
                         <p class="text-sm font-medium text-gray-900">{item.label}</p>
-                        {item.description && (
-                          <p class="text-xs text-gray-500">{item.description}</p>
+                        {(offer.notes ?? item.description) && (
+                          <p class="text-xs text-gray-500">{offer.notes ?? item.description}</p>
                         )}
                       </td>
                       <td class="px-4 py-3 text-sm text-gray-900 text-right">
                         {item.qty}
                       </td>
                       <td class="px-4 py-3 text-sm text-gray-900 text-right">
-                        {formatCurrency(item.unitPrice, offer.currency)}
+                        {formatCurrency(item.unitPrice, offer.currency)}{(item.category === 'Local SEO' || item.category === 'Web SEO') ? ' / μήνα' : ''}
                       </td>
                       <td class="px-4 py-3 text-sm font-semibold text-gray-900 text-right">
                         {formatCurrency(item.lineTotal, offer.currency)}
@@ -350,12 +350,6 @@ validUntil.setDate(validUntil.getDate() + (offer.validityDays || 14));
             </div>
           </section>
 
-          {offer.notes && (
-            <section class="border-t pt-6 mt-8">
-              <h3 class="text-sm font-medium text-gray-500 mb-2">Σημειώσεις</h3>
-              <p class="text-sm text-gray-900 whitespace-pre-wrap">{offer.notes}</p>
-            </section>
-          )}
         </>
       )}
     </div>

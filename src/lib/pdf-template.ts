@@ -65,7 +65,7 @@ export function renderPdfTemplate(props: PdfTemplateProps): string {
                 (item) => `
               <li class="text-sm text-gray-700 list-disc list-inside">
                 ${escapeHtml(item.label)}
-                ${item.description ? `<span class="text-xs text-gray-500"> — ${escapeHtml(item.description)}</span>` : ''}
+                ${(notes || item.description) ? `<span class="text-xs text-gray-500"> — ${escapeHtml(notes || item.description || '')}</span>` : ''}
               </li>
             `
               )
@@ -243,10 +243,10 @@ export function renderPdfTemplate(props: PdfTemplateProps): string {
                     <td class="px-4 py-3 text-sm text-gray-900">${escapeHtml(item.category)}</td>
                     <td class="px-4 py-3">
                       <p class="text-sm font-medium text-gray-900">${escapeHtml(item.label)}</p>
-                      ${item.description ? `<p class="text-xs text-gray-500">${escapeHtml(item.description)}</p>` : ''}
+                      ${(notes || item.description) ? `<p class="text-xs text-gray-500">${escapeHtml(notes || item.description || '')}</p>` : ''}
                     </td>
                     <td class="px-4 py-3 text-sm text-gray-900 text-right">${item.qty}</td>
-                    <td class="px-4 py-3 text-sm text-gray-900 text-right">${formatCurrency(item.unitPrice, currency)}</td>
+                    <td class="px-4 py-3 text-sm text-gray-900 text-right">${formatCurrency(item.unitPrice, currency)}${item.category === 'Local SEO' || item.category === 'Web SEO' ? ' / μήνα' : ''}</td>
                     <td class="px-4 py-3 text-sm font-semibold text-gray-900 text-right">${formatCurrency(item.lineTotal, currency)}</td>
                   </tr>
                 `
@@ -317,12 +317,6 @@ export function renderPdfTemplate(props: PdfTemplateProps): string {
           </div>
         </section>
 
-        ${notes ? `
-        <section class="border-t pt-6 mt-8">
-          <h3 class="text-sm font-medium text-gray-500 mb-2">Σημειώσεις</h3>
-          <p class="text-sm text-gray-900 whitespace-pre-wrap">${escapeHtml(notes)}</p>
-        </section>
-        ` : ''}
       </div>
     </div>
   </body>

@@ -37,7 +37,7 @@ export const GET: APIRoute = async () => {
         const firestoreCatalog = catalogDoc.data() as Catalog;
         const { updatedAt, migratedAt, ...cleanFirestoreCatalog } = firestoreCatalog;
         
-        // Merge: Use Firestore data if it exists, otherwise use JSON
+        // Merge: JSON file is source of truth for categories it defines; Firestore only for extra categories
         const mergedCatalog: Catalog = {};
         const allCategories = new Set([
           ...Object.keys(catalog),
@@ -45,12 +45,12 @@ export const GET: APIRoute = async () => {
         ]);
         
         for (const category of allCategories) {
-          if (cleanFirestoreCatalog[category]) {
-            // Use Firestore version if it exists
-            mergedCatalog[category] = cleanFirestoreCatalog[category];
-          } else if (catalog[category]) {
-            // Otherwise use JSON version
+          if (catalog[category]) {
+            // Use JSON version when present (file wins over Firestore)
             mergedCatalog[category] = catalog[category];
+          } else if (cleanFirestoreCatalog[category]) {
+            // Use Firestore only for categories not in the file
+            mergedCatalog[category] = cleanFirestoreCatalog[category];
           }
         }
         

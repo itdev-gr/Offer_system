@@ -143,13 +143,13 @@ validUntil.setDate(validUntil.getDate() + (offer.validityDays || 14));
                     <td class="px-4 py-3 text-sm text-gray-900">{item.category}</td>
                     <td class="px-4 py-3">
                       <p class="text-sm font-medium text-gray-900">{item.label}</p>
-                      <p class="text-xs text-gray-500">{item.description}</p>
+                      <p class="text-xs text-gray-500">{offer.notes ?? item.description}</p>
                     </td>
                     <td class="px-4 py-3 text-sm text-gray-900 text-right">
                       {item.qty}
                     </td>
                     <td class="px-4 py-3 text-sm text-gray-900 text-right">
-                      {formatCurrency(item.unitPrice, offer.currency)}
+                      {formatCurrency(item.unitPrice, offer.currency)}{(item.category === 'Local SEO' || item.category === 'Web SEO') ? ' / μήνα' : ''}
                     </td>
                     <td class="px-4 py-3 text-sm font-semibold text-gray-900 text-right">
                       {formatCurrency(item.lineTotal, offer.currency)}
@@ -192,12 +192,6 @@ validUntil.setDate(validUntil.getDate() + (offer.validityDays || 14));
           </div>
         </div>
 
-        {offer.notes && (
-          <div class="border-t pt-6 mt-6">
-            <h3 class="text-sm font-medium text-gray-500 mb-2">Notes</h3>
-            <p class="text-sm text-gray-900 whitespace-pre-wrap">{offer.notes}</p>
-          </div>
-        )}
       </div>
     </div>
   </div>
