@@ -383,6 +383,18 @@
           "label": "Διαχείριση πολλαπλών καναλιών",
           "description": "",
           "price": 0
+        },
+        {
+          "id": "feature-ab-testing",
+          "label": "Δοκιμές A/B & βελτιστοποίηση",
+          "description": "",
+          "price": 0
+        },
+        {
+          "id": "feature-local-media",
+          "label": "Συνεργασία με τοπικά media",
+          "description": "",
+          "price": 0
         }
       ]
     }
