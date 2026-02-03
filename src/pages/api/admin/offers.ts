@@ -69,3 +69,36 @@ export const GET: APIRoute = async ({ cookies, url }) => {
     );
   }
 };
+
+export const DELETE: APIRoute = async ({ cookies, url }) => {
+  try {
+    await requireAdmin(cookies);
+    const offerId = url.searchParams.get('id');
+    if (!offerId?.trim()) {
+      return new Response(
+        JSON.stringify({ error: 'Offer ID is required' }),
+        { status: 400, headers: { 'Content-Type': 'application/json' } }
+      );
+    }
+    const db = await getAdminDb();
+    const offerRef = db.collection('offers').doc(offerId);
+    const doc = await offerRef.get();
+    if (!doc.exists) {
+      return new Response(
+        JSON.stringify({ error: 'Offer not found' }),
+        { status: 404, headers: { 'Content-Type': 'application/json' } }
+      );
+    }
+    await offerRef.delete();
+    return new Response(
+      JSON.stringify({ success: true }),
+      { status: 200, headers: { 'Content-Type': 'application/json' } }
+    );
+  } catch (error: any) {
+    if (error instanceof Response) return error;
+    return new Response(
+      JSON.stringify({ error: error.message || 'Failed to delete offer' }),
+      { status: 500, headers: { 'Content-Type': 'application/json' } }
+    );
+  }
+};

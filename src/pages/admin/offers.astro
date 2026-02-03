@@ -100,13 +100,21 @@ const admin = await requireAdmin(Astro.cookies);
                 <p class="font-semibold text-gray-900">${total}</p>
                 <p class="text-xs text-gray-500">${offer.items?.length || 0} items</p>
               </div>
-              <div>
+              <div class="flex items-center gap-2">
                 <a
                   href="/offers/${offer.id}"
                   class="px-4 py-2 text-sm font-medium text-indigo-600 bg-indigo-50 rounded-md hover:bg-indigo-100"
                 >
                   View →
                 </a>
+                <button
+                  type="button"
+                  class="px-4 py-2 text-sm font-medium text-red-600 bg-red-50 rounded-md hover:bg-red-100"
+                  data-offer-id="${offer.id}"
+                  data-offer-name="${(offer.clientName || 'Offer').replace(/"/g, '&quot;')}"
+                >
+                  Delete
+                </button>
               </div>
             </div>
           `;
@@ -180,7 +188,29 @@ const admin = await requireAdmin(Astro.cookies);
     // Make loadOffers available globally
     (window as any).loadOffers = loadOffers;
     
+    async function deleteOffer(offerId: string, clientName: string) {
+      if (!confirm(`Delete offer for "${clientName}"? This cannot be undone.`)) return;
+      try {
+        const response = await fetch(`/api/admin/offers?id=${encodeURIComponent(offerId)}`, { method: 'DELETE' });
+        if (!response.ok) {
+          const data = await response.json().catch(() => ({}));
+          throw new Error(data.error || 'Failed to delete offer');
+        }
+        loadOffers(currentOffset);
+      } catch (err: any) {
+        alert(err.message || 'Failed to delete offer');
+      }
+    }
+    
     document.getElementById('refreshOffers')?.addEventListener('click', () => loadOffers(currentOffset));
+    
+    document.getElementById('offersList')?.addEventListener('click', (e) => {
+      const btn = (e.target as HTMLElement).closest?.('[data-offer-id]');
+      if (!btn) return;
+      const id = btn.getAttribute('data-offer-id');
+      const name = btn.getAttribute('data-offer-name') ?? 'Offer';
+      if (id) deleteOffer(id, name.replace(/&quot;/g, '"'));
+    });
     
     loadOffers(0);
   </script>
