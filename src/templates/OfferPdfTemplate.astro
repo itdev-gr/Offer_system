@@ -199,7 +199,7 @@ const {
               <span style="color: #666; font-size: 10px;">{notes || item.description}</span>
             </td>
             <td class="text-right">{item.qty}</td>
-            <td class="text-right">{formatCurrency(item.unitPrice, currency)}{(item.category === 'Local SEO' || item.category === 'Web SEO' || item.category === 'AI SEO' || item.category === 'Social Media') && item.itemId !== 'extra-video' && item.itemId !== 'extra-post' ? ' / μήνα' : ''}</td>
+            <td class="text-right">{formatCurrency(item.unitPrice, currency)}{(item.category === 'Local SEO' || item.category === 'Web SEO' || item.category === 'AI SEO' || item.category === 'Social Media') && item.itemId !== 'extra-video' && item.itemId !== 'extra-post' && item.itemId !== 'extra-hosting' && item.itemId !== 'extra-page' ? ' / μήνα' : ''}</td>
             <td class="text-right"><strong>{formatCurrency(item.lineTotal, currency)}</strong></td>
           </tr>
         ))}

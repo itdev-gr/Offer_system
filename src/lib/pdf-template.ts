@@ -246,7 +246,7 @@ export function renderPdfTemplate(props: PdfTemplateProps): string {
                       ${(notes || item.description) ? `<p class="text-xs text-gray-500">${escapeHtml(notes || item.description || '')}</p>` : ''}
                     </td>
                     <td class="px-4 py-3 text-sm text-gray-900 text-right">${item.qty}</td>
-                    <td class="px-4 py-3 text-sm text-gray-900 text-right">${formatCurrency(item.unitPrice, currency)}${(item.category === 'Local SEO' || item.category === 'Web SEO' || item.category === 'AI SEO' || item.category === 'Social Media') && item.itemId !== 'extra-video' && item.itemId !== 'extra-post' ? ' / μήνα' : ''}</td>
+                    <td class="px-4 py-3 text-sm text-gray-900 text-right">${formatCurrency(item.unitPrice, currency)}${(item.category === 'Local SEO' || item.category === 'Web SEO' || item.category === 'AI SEO' || item.category === 'Social Media') && item.itemId !== 'extra-video' && item.itemId !== 'extra-post' && item.itemId !== 'extra-hosting' && item.itemId !== 'extra-page' ? ' / μήνα' : ''}</td>
                     <td class="px-4 py-3 text-sm font-semibold text-gray-900 text-right">${formatCurrency(item.lineTotal, currency)}</td>
                   </tr>
                 `

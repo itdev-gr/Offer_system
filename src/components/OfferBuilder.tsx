@@ -47,6 +47,8 @@ export default function OfferBuilder() {
   const [selectedNestedSubProducts, setSelectedNestedSubProducts] = useState<Map<string, Set<string>>>(new Map());
   const [extraVideosByCategory, setExtraVideosByCategory] = useState<Record<string, number>>({});
   const [extraPostsByCategory, setExtraPostsByCategory] = useState<Record<string, number>>({});
+  const [extraHostingByCategory, setExtraHostingByCategory] = useState<Record<string, number>>({});
+  const [extraPagesByCategory, setExtraPagesByCategory] = useState<Record<string, number>>({});
 
   const getSyntheticExtraItems = (): OfferItem[] => {
     const result: OfferItem[] = [];
@@ -75,6 +77,30 @@ export default function OfferBuilder() {
           lineTotal: 25 * qtyP,
         });
       }
+      const qtyH = extraHostingByCategory[cat] || 0;
+      if (qtyH > 0) {
+        result.push({
+          category: cat,
+          itemId: 'extra-hosting',
+          label: 'Hosting',
+          description: '€120 per year',
+          unitPrice: 120,
+          qty: qtyH,
+          lineTotal: 120 * qtyH,
+        });
+      }
+      const qtyPg = extraPagesByCategory[cat] || 0;
+      if (qtyPg > 0) {
+        result.push({
+          category: cat,
+          itemId: 'extra-page',
+          label: 'Extra page',
+          description: '€90 per page',
+          unitPrice: 90,
+          qty: qtyPg,
+          lineTotal: 90 * qtyPg,
+        });
+      }
     });
     return result;
   };
@@ -83,18 +109,34 @@ export default function OfferBuilder() {
   const hasAnyItems = allItemsForOffer.length > 0;
 
   const handleItemsChangeFromSummary = (newItems: OfferItem[]) => {
-    const catalogItems = newItems.filter((i) => i.itemId !== 'extra-video' && i.itemId !== 'extra-post');
+    const catalogItems = newItems.filter(
+      (i) =>
+        i.itemId !== 'extra-video' &&
+        i.itemId !== 'extra-post' &&
+        i.itemId !== 'extra-hosting' &&
+        i.itemId !== 'extra-page'
+    );
     const newExtraVideos: Record<string, number> = { ...extraVideosByCategory };
     const newExtraPosts: Record<string, number> = { ...extraPostsByCategory };
+    const newExtraHosting: Record<string, number> = { ...extraHostingByCategory };
+    const newExtraPages: Record<string, number> = { ...extraPagesByCategory };
     newItems.filter((i) => i.itemId === 'extra-video').forEach((i) => {
       newExtraVideos[i.category] = i.qty;
     });
     newItems.filter((i) => i.itemId === 'extra-post').forEach((i) => {
       newExtraPosts[i.category] = i.qty;
     });
+    newItems.filter((i) => i.itemId === 'extra-hosting').forEach((i) => {
+      newExtraHosting[i.category] = i.qty;
+    });
+    newItems.filter((i) => i.itemId === 'extra-page').forEach((i) => {
+      newExtraPages[i.category] = i.qty;
+    });
     setSelectedItems(catalogItems);
     setExtraVideosByCategory(newExtraVideos);
     setExtraPostsByCategory(newExtraPosts);
+    setExtraHostingByCategory(newExtraHosting);
+    setExtraPagesByCategory(newExtraPages);
   };
 
   const toggleItemExpanded = (category: string, itemId: string) => {
@@ -245,6 +287,8 @@ export default function OfferBuilder() {
     setSelectedItems([]);
     setExtraVideosByCategory({});
     setExtraPostsByCategory({});
+    setExtraHostingByCategory({});
+    setExtraPagesByCategory({});
   };
 
   useEffect(() => {
@@ -640,6 +684,40 @@ export default function OfferBuilder() {
                           onChange={(e) => {
                             const v = Math.max(0, parseInt(e.target.value, 10) || 0);
                             setExtraPostsByCategory((prev) => ({ ...prev, [selectedCategory]: v }));
+                          }}
+                          className="w-20 px-2 py-1.5 text-sm border border-gray-300 rounded-md"
+                        />
+                      </div>
+                    </div>
+                  </div>
+                )}
+
+                {selectedCategory === 'Website Development' && (
+                  <div className="mt-6 pt-6 border-t border-gray-200">
+                    <p className="text-sm font-medium text-gray-700 mb-3">Extras (this category)</p>
+                    <div className="flex flex-wrap gap-6">
+                      <div className="flex items-center gap-2">
+                        <label className="text-sm text-gray-600">Hosting (€120 each):</label>
+                        <input
+                          type="number"
+                          min={0}
+                          value={extraHostingByCategory[selectedCategory] ?? 0}
+                          onChange={(e) => {
+                            const v = Math.max(0, parseInt(e.target.value, 10) || 0);
+                            setExtraHostingByCategory((prev) => ({ ...prev, [selectedCategory]: v }));
+                          }}
+                          className="w-20 px-2 py-1.5 text-sm border border-gray-300 rounded-md"
+                        />
+                      </div>
+                      <div className="flex items-center gap-2">
+                        <label className="text-sm text-gray-600">Extra pages (€90 each):</label>
+                        <input
+                          type="number"
+                          min={0}
+                          value={extraPagesByCategory[selectedCategory] ?? 0}
+                          onChange={(e) => {
+                            const v = Math.max(0, parseInt(e.target.value, 10) || 0);
+                            setExtraPagesByCategory((prev) => ({ ...prev, [selectedCategory]: v }));
                           }}
                           className="w-20 px-2 py-1.5 text-sm border border-gray-300 rounded-md"
                         />

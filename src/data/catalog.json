@@ -1,28 +1,64 @@
 {
   "Website Development": [
     {
-      "id": "web-dev-basic",
-      "label": "Basic Website",
-      "description": "5-page responsive website with contact form",
-      "price": 1500
+      "id": "web-dev-landing",
+      "label": "Landing Page",
+      "description": "Στοχευμένη Landing Page για conversions, copywriting για leads, responsive design, φόρμα επικοινωνίας ή εκδήλωσης ενδιαφέροντος, γρήγορη φόρτωση και καθαρό UX, βασική παρακολούθηση conversions, παράδοση έτοιμη για διαφήμιση, 2 κύκλοι διορθώσεων. + Hosting 120€/έτος + ΦΠΑ.",
+      "price": 300,
+      "subProducts": [
+        { "id": "extra-booking-stripe", "label": "Booking με Stripe", "description": "Σύστημα κρατήσεων με online πληρωμές μέσω Stripe. Εφάπαξ.", "price": 500 },
+        { "id": "extra-diglosso", "label": "Δίγλωσσο Website", "description": "Ελληνικά + Αγγλικά περιεχόμενο και ρύθμιση. Εφάπαξ.", "price": 200 },
+        { "id": "extra-ai-chatbot-setup", "label": "AI Chat Bot (Setup)", "description": "Setup AI chatbot στο website. Εφάπαξ.", "price": 200 },
+        { "id": "extra-ai-chatbot-monthly", "label": "AI Chat Bot (Συνδρομή)", "description": "Συνδρομή AI chatbot. / μήνα.", "price": 100 },
+        { "id": "extra-hosting-simple", "label": "Hosting απλό site", "description": "Φιλοξενία απλού WordPress website. / έτος.", "price": 120 },
+        { "id": "extra-hosting-eshop", "label": "Hosting e-shop", "description": "Φιλοξενία WordPress e-shop. / έτος.", "price": 180 },
+        { "id": "extra-migration-small", "label": "Migration μικρό site", "description": "Μεταφορά μικρού ή απλού site σε δικό μας hosting. Εφάπαξ (150–200€).", "price": 175 },
+        { "id": "extra-migration-large", "label": "Migration μεγάλο site", "description": "Μεταφορά μεγάλου ή απαιτητικού site. Εφάπαξ (500–600€).", "price": 550 },
+        { "id": "extra-email-marketing", "label": "Email Marketing", "description": "Setup και βασική στρατηγική email marketing. Εφάπαξ.", "price": 200 },
+        { "id": "extra-newsletter-setup", "label": "Newsletter setup", "description": "Φόρμα newsletter και σύνδεση με πλατφόρμα. Εφάπαξ.", "price": 150 },
+        { "id": "extra-support-simple-monthly", "label": "Μηνιαίο Support απλό site", "description": "Τεχνική υποστήριξη απλών σελίδων. / μήνα.", "price": 60 },
+        { "id": "extra-support-eshop-monthly", "label": "Μηνιαίο Support e-shop", "description": "Τεχνική υποστήριξη e-shop. / μήνα (150–200€).", "price": 175 }
+      ]
     },
     {
-      "id": "web-dev-standard",
-      "label": "Standard Website",
-      "description": "10-page responsive website with CMS integration",
-      "price": 3000
+      "id": "web-dev-professional",
+      "label": "Επαγγελματική Ιστοσελίδα",
+      "description": "Φιλικό σε κινητά, 5 στατικές σελίδες, custom & responsive design, φόρμα επικοινωνίας, χάρτης Google, βασικό SEO, 2 κύκλοι διορθώσεων. + Hosting 120€/έτος + ΦΠΑ.",
+      "price": 500,
+      "subProducts": [
+        { "id": "extra-booking-stripe", "label": "Booking με Stripe", "description": "Σύστημα κρατήσεων με online πληρωμές μέσω Stripe. Εφάπαξ.", "price": 500 },
+        { "id": "extra-diglosso", "label": "Δίγλωσσο Website", "description": "Ελληνικά + Αγγλικά περιεχόμενο και ρύθμιση. Εφάπαξ.", "price": 200 },
+        { "id": "extra-ai-chatbot-setup", "label": "AI Chat Bot (Setup)", "description": "Setup AI chatbot στο website. Εφάπαξ.", "price": 200 },
+        { "id": "extra-ai-chatbot-monthly", "label": "AI Chat Bot (Συνδρομή)", "description": "Συνδρομή AI chatbot. / μήνα.", "price": 100 },
+        { "id": "extra-hosting-simple", "label": "Hosting απλό site", "description": "Φιλοξενία απλού WordPress website. / έτος.", "price": 120 },
+        { "id": "extra-hosting-eshop", "label": "Hosting e-shop", "description": "Φιλοξενία WordPress e-shop. / έτος.", "price": 180 },
+        { "id": "extra-migration-small", "label": "Migration μικρό site", "description": "Μεταφορά μικρού ή απλού site σε δικό μας hosting. Εφάπαξ (150–200€).", "price": 175 },
+        { "id": "extra-migration-large", "label": "Migration μεγάλο site", "description": "Μεταφορά μεγάλου ή απαιτητικού site. Εφάπαξ (500–600€).", "price": 550 },
+        { "id": "extra-email-marketing", "label": "Email Marketing", "description": "Setup και βασική στρατηγική email marketing. Εφάπαξ.", "price": 200 },
+        { "id": "extra-newsletter-setup", "label": "Newsletter setup", "description": "Φόρμα newsletter και σύνδεση με πλατφόρμα. Εφάπαξ.", "price": 150 },
+        { "id": "extra-support-simple-monthly", "label": "Μηνιαίο Support απλό site", "description": "Τεχνική υποστήριξη απλών σελίδων. / μήνα.", "price": 60 },
+        { "id": "extra-support-eshop-monthly", "label": "Μηνιαίο Support e-shop", "description": "Τεχνική υποστήριξη e-shop. / μήνα (150–200€).", "price": 175 }
+      ]
     },
     {
-      "id": "web-dev-premium",
-      "label": "Premium Website",
-      "description": "Unlimited pages, custom design, e-commerce integration",
-      "price": 6000
-    },
-    {
-      "id": "web-dev-maintenance",
-      "label": "Monthly Maintenance",
-      "description": "Updates, backups, security monitoring",
-      "price": 200
+      "id": "web-dev-custom",
+      "label": "Custom",
+      "description": "Προσαρμοσμένη τιμή ανάλογα με το project και τις ανάγκες που ζητάει ο πελάτης.",
+      "price": 0,
+      "subProducts": [
+        { "id": "extra-booking-stripe", "label": "Booking με Stripe", "description": "Σύστημα κρατήσεων με online πληρωμές μέσω Stripe. Εφάπαξ.", "price": 500 },
+        { "id": "extra-diglosso", "label": "Δίγλωσσο Website", "description": "Ελληνικά + Αγγλικά περιεχόμενο και ρύθμιση. Εφάπαξ.", "price": 200 },
+        { "id": "extra-ai-chatbot-setup", "label": "AI Chat Bot (Setup)", "description": "Setup AI chatbot στο website. Εφάπαξ.", "price": 200 },
+        { "id": "extra-ai-chatbot-monthly", "label": "AI Chat Bot (Συνδρομή)", "description": "Συνδρομή AI chatbot. / μήνα.", "price": 100 },
+        { "id": "extra-hosting-simple", "label": "Hosting απλό site", "description": "Φιλοξενία απλού WordPress website. / έτος.", "price": 120 },
+        { "id": "extra-hosting-eshop", "label": "Hosting e-shop", "description": "Φιλοξενία WordPress e-shop. / έτος.", "price": 180 },
+        { "id": "extra-migration-small", "label": "Migration μικρό site", "description": "Μεταφορά μικρού ή απλού site σε δικό μας hosting. Εφάπαξ (150–200€).", "price": 175 },
+        { "id": "extra-migration-large", "label": "Migration μεγάλο site", "description": "Μεταφορά μεγάλου ή απαιτητικού site. Εφάπαξ (500–600€).", "price": 550 },
+        { "id": "extra-email-marketing", "label": "Email Marketing", "description": "Setup και βασική στρατηγική email marketing. Εφάπαξ.", "price": 200 },
+        { "id": "extra-newsletter-setup", "label": "Newsletter setup", "description": "Φόρμα newsletter και σύνδεση με πλατφόρμα. Εφάπαξ.", "price": 150 },
+        { "id": "extra-support-simple-monthly", "label": "Μηνιαίο Support απλό site", "description": "Τεχνική υποστήριξη απλών σελίδων. / μήνα.", "price": 60 },
+        { "id": "extra-support-eshop-monthly", "label": "Μηνιαίο Support e-shop", "description": "Τεχνική υποστήριξη e-shop. / μήνα (150–200€).", "price": 175 }
+      ]
     }
   ],
   "Local SEO": [

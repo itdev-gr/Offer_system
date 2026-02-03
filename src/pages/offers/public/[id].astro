@@ -277,7 +277,7 @@ validUntil.setDate(validUntil.getDate() + (offer.validityDays || 14));
                         {item.qty}
                       </td>
                       <td class="px-4 py-3 text-sm text-gray-900 text-right">
-                        {formatCurrency(item.unitPrice, offer.currency)}{(item.category === 'Local SEO' || item.category === 'Web SEO' || item.category === 'AI SEO' || item.category === 'Social Media') && item.itemId !== 'extra-video' && item.itemId !== 'extra-post' ? ' / μήνα' : ''}
+                        {formatCurrency(item.unitPrice, offer.currency)}{(item.category === 'Local SEO' || item.category === 'Web SEO' || item.category === 'AI SEO' || item.category === 'Social Media') && item.itemId !== 'extra-video' && item.itemId !== 'extra-post' && item.itemId !== 'extra-hosting' && item.itemId !== 'extra-page' ? ' / μήνα' : ''}
                       </td>
                       <td class="px-4 py-3 text-sm font-semibold text-gray-900 text-right">
                         {formatCurrency(item.lineTotal, offer.currency)}
