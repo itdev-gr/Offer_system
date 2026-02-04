@@ -30,6 +30,7 @@ export default function OfferBuilder() {
   const [selectedCategory, setSelectedCategory] = useState<string>(categories[0] || '');
   const [selectedItems, setSelectedItems] = useState<OfferItem[]>([]);
   const [clientName, setClientName] = useState('');
+  const [clickupId, setClickupId] = useState('');
   const [companyName, setCompanyName] = useState('');
   const [email, setEmail] = useState('');
   const [currency, setCurrency] = useState('EUR');
@@ -345,6 +346,11 @@ export default function OfferBuilder() {
       return;
     }
 
+    if (!clickupId.trim()) {
+      setError('Clickup ID is required');
+      return;
+    }
+
     if (selectedItems.length === 0) {
       setError('Please select at least one item');
       return;
@@ -361,6 +367,7 @@ export default function OfferBuilder() {
         headers: { 'Content-Type': 'application/json' },
         body: JSON.stringify({
           clientName: clientName.trim(),
+          clickupId: clickupId.trim(),
           companyName: companyName.trim() || undefined,
           email: email.trim() || undefined,
           currency,
@@ -766,6 +773,19 @@ export default function OfferBuilder() {
                       />
                     </div>
 
+                    <div>
+                      <label className="block text-sm font-medium text-gray-700 mb-1">
+                        Clickup ID <span className="text-red-500">*</span>
+                      </label>
+                      <input
+                        type="text"
+                        required
+                        value={clickupId}
+                        onChange={(e) => setClickupId(e.target.value)}
+                        className="w-full px-3 py-2 border border-gray-300 bg-white text-gray-900 rounded-md focus:outline-none focus:ring-2 focus:ring-indigo-500"
+                      />
+                    </div>
+
                     <div className="grid grid-cols-2 gap-4">
                       <div>
                         <label className="block text-sm font-medium text-gray-700 mb-1">
@@ -868,7 +888,7 @@ export default function OfferBuilder() {
               </button>
               <button
                 type="submit"
-                disabled={isSubmitting || !hasAnyItems || !clientName.trim()}
+                disabled={isSubmitting || !hasAnyItems || !clientName.trim() || !clickupId.trim()}
                 className="flex-1 px-4 py-2 text-sm font-medium text-white bg-indigo-600 rounded-md hover:bg-indigo-700 disabled:bg-gray-400 disabled:cursor-not-allowed"
               >
                 {isSubmitting ? 'Creating...' : 'Create Offer'}

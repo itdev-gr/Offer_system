@@ -5,6 +5,7 @@ import type { OfferItem, Totals } from '../../lib/money';
 
 interface CreateOfferRequest {
   clientName: string;
+  clickupId: string;
   companyName?: string;
   email?: string;
   currency: string;
@@ -32,6 +33,16 @@ export const POST: APIRoute = async ({ request, cookies }) => {
       );
     }
 
+    if (!body.clickupId?.trim()) {
+      return new Response(
+        JSON.stringify({ error: 'Clickup ID is required' }),
+        {
+          status: 400,
+          headers: { 'Content-Type': 'application/json' },
+        }
+      );
+    }
+
     if (!body.items || body.items.length === 0) {
       return new Response(
         JSON.stringify({ error: 'At least one item is required' }),
@@ -48,6 +59,7 @@ export const POST: APIRoute = async ({ request, cookies }) => {
 
     const offerData = {
       clientName: body.clientName.trim(),
+      clickupId: body.clickupId.trim(),
       companyName: body.companyName?.trim() || null,
       email: body.email?.trim() || null,
       currency: body.currency || 'EUR',
