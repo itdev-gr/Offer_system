@@ -78,6 +78,30 @@ export const POST: APIRoute = async ({ request, cookies }) => {
 
     await offerRef.set(offerData);
 
+    const webhookUrl = import.meta.env.ZAPIER_OFFER_WEBHOOK_URL as string | undefined;
+    if (webhookUrl?.trim()) {
+      try {
+        const controller = new AbortController();
+        const timeoutId = setTimeout(() => controller.abort(), 10000);
+        try {
+          await fetch(webhookUrl.trim(), {
+            method: 'POST',
+            headers: { 'Content-Type': 'application/json' },
+            body: JSON.stringify({
+              clickupTaskId: body.clickupId.trim(),
+              offerTitle: body.clientName.trim(),
+              offerId,
+            }),
+            signal: controller.signal,
+          });
+        } finally {
+          clearTimeout(timeoutId);
+        }
+      } catch (err) {
+        console.error('Zapier webhook error (offer still created):', err);
+      }
+    }
+
     return new Response(
       JSON.stringify({ success: true, offerId }),
       {
