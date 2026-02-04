@@ -1,6 +1,7 @@
 import type { APIRoute } from 'astro';
 import { requireUser } from '../../lib/auth/middleware';
 import { getAdminDb } from '../../lib/firebase/admin';
+import { generateOfferPdf } from '../../lib/generate-offer-pdf';
 import type { OfferItem, Totals } from '../../lib/money';
 
 interface CreateOfferRequest {
@@ -81,17 +82,19 @@ export const POST: APIRoute = async ({ request, cookies }) => {
     const webhookUrl = import.meta.env.ZAPIER_OFFER_WEBHOOK_URL as string | undefined;
     if (webhookUrl?.trim()) {
       try {
+        const pdfBuffer = await generateOfferPdf(offerId);
+        const formData = new FormData();
+        formData.append('file', new Blob([pdfBuffer], { type: 'application/pdf' }), `offer-${offerId.slice(0, 8)}.pdf`);
+        formData.append('clickupTaskId', body.clickupId.trim());
+        formData.append('offerTitle', body.clientName.trim());
+        formData.append('offerId', offerId);
+
         const controller = new AbortController();
-        const timeoutId = setTimeout(() => controller.abort(), 10000);
+        const timeoutId = setTimeout(() => controller.abort(), 20000);
         try {
           await fetch(webhookUrl.trim(), {
             method: 'POST',
-            headers: { 'Content-Type': 'application/json' },
-            body: JSON.stringify({
-              clickupTaskId: body.clickupId.trim(),
-              offerTitle: body.clientName.trim(),
-              offerId,
-            }),
+            body: formData,
             signal: controller.signal,
           });
         } finally {

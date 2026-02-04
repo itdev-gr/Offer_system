@@ -1,10 +1,6 @@
 import type { APIRoute } from 'astro';
 import { requireUser } from '../../lib/auth/middleware';
-import { getAdminDb } from '../../lib/firebase/admin';
-import { renderPdfTemplate } from '../../lib/pdf-template';
-import puppeteer from 'puppeteer-core';
-import chromium from '@sparticuz/chromium';
-import type { OfferItem } from '../../lib/money';
+import { generateOfferPdf } from '../../lib/generate-offer-pdf';
 
 export const POST: APIRoute = async ({ request, cookies, url }) => {
   try {
@@ -21,98 +17,9 @@ export const POST: APIRoute = async ({ request, cookies, url }) => {
       );
     }
 
-    const db = await getAdminDb();
-    const offerDoc = await db.collection('offers').doc(offerId).get();
+    const pdfBuffer = await generateOfferPdf(offerId);
 
-    if (!offerDoc.exists) {
-      return new Response(
-        JSON.stringify({ error: 'Offer not found' }),
-        {
-          status: 404,
-          headers: { 'Content-Type': 'application/json' },
-        }
-      );
-    }
-
-    const offer = offerDoc.data()!;
-    const items = offer.items as OfferItem[];
-    const totals = offer.totals;
-
-    const createdAt = offer.createdAt?.toDate?.() || new Date(offer.createdAt);
-    const validUntil = new Date(createdAt);
-    validUntil.setDate(validUntil.getDate() + (offer.validityDays || 14));
-
-    // Load sender (creator) information
-    let senderName = '';
-    let senderSurname = '';
-    if (offer.createdBy?.uid) {
-      try {
-        const senderDoc = await db.collection('users').doc(offer.createdBy.uid).get();
-        if (senderDoc.exists) {
-          const senderData = senderDoc.data();
-          senderName = senderData?.name || '';
-          senderSurname = senderData?.surname || '';
-        }
-      } catch (error) {
-        console.error('Error loading sender info:', error);
-      }
-    }
-
-    // Render the PDF template to HTML
-    const html = renderPdfTemplate({
-      offerId,
-      clientName: offer.clientName,
-      companyName: offer.companyName || undefined,
-      email: offer.email || undefined,
-      senderName: senderName || undefined,
-      senderSurname: senderSurname || undefined,
-      currency: offer.currency || 'EUR',
-      discountPercent: offer.discountPercent || 0,
-      vatPercent: offer.vatPercent || 0,
-      validityDays: offer.validityDays || 14,
-      notes: offer.notes || undefined,
-      items,
-      totals,
-      createdAt,
-      validUntil,
-    });
-
-    // Generate PDF using Puppeteer with Chromium for serverless
-    const executablePath = await chromium.executablePath();
-    const browser = await puppeteer.launch({
-      args: chromium.args,
-      defaultViewport: chromium.defaultViewport,
-      executablePath,
-      headless: chromium.headless,
-    });
-    
-    const page = await browser.newPage();
-    await page.setContent(html, { waitUntil: 'load', timeout: 15000 });
-    // Wait for Tailwind CDN to process styles
-    await new Promise(resolve => setTimeout(resolve, 500));
-
-    // Get the full height of the content
-    const bodyHeight = await page.evaluate(() => {
-      return document.body.scrollHeight;
-    });
-
-    const pdf = await page.pdf({
-      width: '210mm',
-      height: `${Math.max(bodyHeight / 3.779527559, 297)}mm`, // Convert px to mm (1mm = 3.779527559px)
-      margin: {
-        top: '0mm',
-        right: '0mm',
-        bottom: '0mm',
-        left: '0mm',
-      },
-      printBackground: true,
-      preferCSSPageSize: true,
-      displayHeaderFooter: false,
-    });
-
-    await browser.close();
-
-    return new Response(pdf, {
+    return new Response(pdfBuffer, {
       status: 200,
       headers: {
         'Content-Type': 'application/pdf',
