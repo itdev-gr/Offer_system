@@ -10,7 +10,7 @@ interface CreateOfferRequest {
   companyName?: string;
   email?: string;
   currency: string;
-  discountPercent: number;
+  discountAmount: number;
   vatPercent: number;
   validityDays: number;
   notes?: string;
@@ -64,7 +64,7 @@ export const POST: APIRoute = async ({ request, cookies }) => {
       companyName: body.companyName?.trim() || null,
       email: body.email?.trim() || null,
       currency: body.currency || 'EUR',
-      discountPercent: body.discountPercent || 0,
+      discountAmount: body.discountAmount ?? 0,
       vatPercent: body.vatPercent || 0,
       validityDays: body.validityDays || 14,
       notes: body.notes?.trim() || null,

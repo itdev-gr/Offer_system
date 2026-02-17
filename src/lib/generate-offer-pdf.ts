@@ -1,7 +1,5 @@
 import { getAdminDb } from './firebase/admin';
 import { renderPdfTemplate } from './pdf-template';
-import puppeteer from 'puppeteer-core';
-import chromium from '@sparticuz/chromium';
 import type { OfferItem } from './money';
 
 /**
@@ -46,7 +44,6 @@ export async function generateOfferPdf(offerId: string): Promise<Buffer> {
     senderName: senderName || undefined,
     senderSurname: senderSurname || undefined,
     currency: offer.currency || 'EUR',
-    discountPercent: offer.discountPercent || 0,
     vatPercent: offer.vatPercent || 0,
     validityDays: offer.validityDays || 14,
     notes: offer.notes || undefined,
@@ -56,13 +53,23 @@ export async function generateOfferPdf(offerId: string): Promise<Buffer> {
     validUntil,
   });
 
-  const executablePath = await chromium.executablePath();
-  const browser = await puppeteer.launch({
-    args: chromium.args,
-    defaultViewport: chromium.defaultViewport,
-    executablePath,
-    headless: chromium.headless,
-  });
+  // In dev use full puppeteer (OS Chromium); in prod use puppeteer-core + @sparticuz/chromium for serverless
+  const isDev = import.meta.env.DEV;
+  let browser: Awaited<ReturnType<Awaited<typeof import('puppeteer-core')>['launch']>;
+  if (isDev) {
+    const puppeteer = await import('puppeteer');
+    browser = await puppeteer.default.launch({ headless: true });
+  } else {
+    const puppeteer = await import('puppeteer-core');
+    const chromium = await import('@sparticuz/chromium');
+    const executablePath = await chromium.default.executablePath();
+    browser = await puppeteer.default.launch({
+      args: chromium.default.args,
+      defaultViewport: chromium.default.defaultViewport,
+      executablePath,
+      headless: chromium.default.headless,
+    });
+  }
 
   const page = await browser.newPage();
   await page.setContent(html, { waitUntil: 'load', timeout: 15000 });

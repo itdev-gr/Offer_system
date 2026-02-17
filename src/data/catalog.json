@@ -66,13 +66,13 @@
       "id": "local-seo-local",
       "label": "Local Plan",
       "description": "Βασικό πακέτο Local SEO με όλα τα βασικά features. Τιμή ανά μήνα.",
-      "price": 200,
+      "price": 250,
       "subProducts": [
         {
           "id": "installation-local",
           "label": "Κόστος Εγκατάστασης",
           "description": "Εφάπαξ κόστος εγκατάστασης",
-          "price": 250
+          "price": 300
         }
       ]
     },
@@ -80,13 +80,13 @@
       "id": "local-seo-growth",
       "label": "Growth Plan",
       "description": "Προχωρημένο πακέτο Local SEO με περιεχόμενο marketing και προσωπική στρατηγική. Τιμή ανά μήνα.",
-      "price": 299,
+      "price": 349,
       "subProducts": [
         {
           "id": "installation-growth",
           "label": "Κόστος Εγκατάστασης",
           "description": "Εφάπαξ κόστος εγκατάστασης",
-          "price": 350
+          "price": 400
         }
       ]
     },
@@ -94,13 +94,13 @@
       "id": "local-seo-premium",
       "label": "Premium Plan",
       "description": "Πλήρες πακέτο Local SEO με διαχείριση πολλαπλών καναλιών. Τιμή ανά μήνα.",
-      "price": 600,
+      "price": 650,
       "subProducts": [
         {
           "id": "installation-premium",
           "label": "Κόστος Εγκατάστασης",
           "description": "Εφάπαξ κόστος εγκατάστασης",
-          "price": 500
+          "price": 550
         }
       ]
     }
@@ -110,13 +110,13 @@
       "id": "web-seo-basic",
       "label": "Βασικό",
       "description": "Περισσότερες επισκέψεις από Google, καλύτερες θέσεις στις αναζητήσεις, περισσότερα leads και επαφές, αυξημένη online παρουσία, περισσότερες πωλήσεις, καλύτερη αξιοπιστία, περισσότερη εμπιστοσύνη. Τιμή ανά μήνα.",
-      "price": 300
+      "price": 350
     },
     {
       "id": "web-seo-eshop",
       "label": "Eshop",
       "description": "Όλα τα Βασικό + σταθερή ανάπτυξη, βελτιστοποίηση product pages, περισσότερες παραγγελίες, καλύτερη conversion rate, περισσότερα reviews, αυξημένη brand awareness, πλεονέκτημα ανταγωνισμού. Τιμή ανά μήνα.",
-      "price": 600
+      "price": 650
     },
     {
       "id": "web-seo-enterprise",
@@ -163,6 +163,26 @@
       "label": "Edit Only Pack (4 ΒΙΝΤΕΟ & 4 POSTS / μήνα)",
       "description": "Ιδανικό για επιχειρήσεις με έδρα εκτός Αθηνών. Script για 4 videos, ο πελάτης γυρίζει και στέλνει υλικό, επεξεργασία video, υπότιτλοι και μουσική, 4 posts, post calendar, SEO friendly captions, publication σε social media, analytics. Τιμή ανά μήνα.",
       "price": 290
+    }
+  ],
+  "Ads": [
+    {
+      "id": "ads-google-ads",
+      "label": "Services google ads",
+      "description": "Διαχείριση και βελτιστοποίηση Google Ads.",
+      "price": 150
+    },
+    {
+      "id": "ads-eshop-google-ads",
+      "label": "Eshop google ads",
+      "description": "Google Ads για e-shop.",
+      "price": 300
+    },
+    {
+      "id": "ads-meta-ads",
+      "label": "Meta Ads",
+      "description": "Διαφήμιση Meta (Facebook / Instagram).",
+      "price": 150
     }
   ]
 }

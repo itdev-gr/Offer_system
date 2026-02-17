@@ -34,7 +34,7 @@ export default function OfferBuilder() {
   const [companyName, setCompanyName] = useState('');
   const [email, setEmail] = useState('');
   const [currency, setCurrency] = useState('EUR');
-  const [discountPercent, setDiscountPercent] = useState(0);
+  const [discountAmount, setDiscountAmount] = useState(0);
   const [vatPercent, setVatPercent] = useState(0);
   const [validityDays, setValidityDays] = useState(14);
   const [notes, setNotes] = useState('');
@@ -50,6 +50,8 @@ export default function OfferBuilder() {
   const [extraPostsByCategory, setExtraPostsByCategory] = useState<Record<string, number>>({});
   const [extraHostingByCategory, setExtraHostingByCategory] = useState<Record<string, number>>({});
   const [extraPagesByCategory, setExtraPagesByCategory] = useState<Record<string, number>>({});
+  const [extraLanguagesByCategory, setExtraLanguagesByCategory] = useState<Record<string, number>>({});
+  const [customPriceByItem, setCustomPriceByItem] = useState<Record<string, number>>({});
 
   const getSyntheticExtraItems = (): OfferItem[] => {
     const result: OfferItem[] = [];
@@ -102,6 +104,18 @@ export default function OfferBuilder() {
           lineTotal: 90 * qtyPg,
         });
       }
+      const qtyL = extraLanguagesByCategory[cat] || 0;
+      if (qtyL > 0) {
+        result.push({
+          category: cat,
+          itemId: 'extra-language',
+          label: 'Language',
+          description: '€50 per language',
+          unitPrice: 50,
+          qty: qtyL,
+          lineTotal: 50 * qtyL,
+        });
+      }
     });
     return result;
   };
@@ -115,12 +129,14 @@ export default function OfferBuilder() {
         i.itemId !== 'extra-video' &&
         i.itemId !== 'extra-post' &&
         i.itemId !== 'extra-hosting' &&
-        i.itemId !== 'extra-page'
+        i.itemId !== 'extra-page' &&
+        i.itemId !== 'extra-language'
     );
     const newExtraVideos: Record<string, number> = { ...extraVideosByCategory };
     const newExtraPosts: Record<string, number> = { ...extraPostsByCategory };
     const newExtraHosting: Record<string, number> = { ...extraHostingByCategory };
     const newExtraPages: Record<string, number> = { ...extraPagesByCategory };
+    const newExtraLanguages: Record<string, number> = { ...extraLanguagesByCategory };
     newItems.filter((i) => i.itemId === 'extra-video').forEach((i) => {
       newExtraVideos[i.category] = i.qty;
     });
@@ -133,11 +149,24 @@ export default function OfferBuilder() {
     newItems.filter((i) => i.itemId === 'extra-page').forEach((i) => {
       newExtraPages[i.category] = i.qty;
     });
+    newItems.filter((i) => i.itemId === 'extra-language').forEach((i) => {
+      newExtraLanguages[i.category] = i.qty;
+    });
+    const newCustomPrices: Record<string, number> = { ...customPriceByItem };
+    catalogItems.forEach((i) => {
+      const catItems = catalog[i.category];
+      const catalogItem = catItems?.find((c) => c.id === i.itemId);
+      if (catalogItem?.price === 0 && i.unitPrice > 0) {
+        newCustomPrices[`${i.category}-${i.itemId}`] = i.unitPrice;
+      }
+    });
     setSelectedItems(catalogItems);
     setExtraVideosByCategory(newExtraVideos);
     setExtraPostsByCategory(newExtraPosts);
     setExtraHostingByCategory(newExtraHosting);
     setExtraPagesByCategory(newExtraPages);
+    setExtraLanguagesByCategory(newExtraLanguages);
+    setCustomPriceByItem(newCustomPrices);
   };
 
   const toggleItemExpanded = (category: string, itemId: string) => {
@@ -164,15 +193,17 @@ export default function OfferBuilder() {
       newSelectedSubProducts.delete(key);
       setSelectedSubProducts(newSelectedSubProducts);
     } else {
-      // Add item
+      // Add item (use custom price when catalog price is 0)
+      const key = `${category}-${item.id}`;
+      const effectivePrice = item.price === 0 ? (customPriceByItem[key] ?? 0) : item.price;
       const newItem: OfferItem = {
         category,
         itemId: item.id,
         label: item.label,
         description: item.description,
-        unitPrice: item.price,
+        unitPrice: effectivePrice,
         qty: 1,
-        lineTotal: item.price,
+        lineTotal: effectivePrice,
       };
       setSelectedItems([...selectedItems, newItem]);
     }
@@ -290,6 +321,8 @@ export default function OfferBuilder() {
     setExtraPostsByCategory({});
     setExtraHostingByCategory({});
     setExtraPagesByCategory({});
+    setExtraLanguagesByCategory({});
+    setCustomPriceByItem({});
   };
 
   useEffect(() => {
@@ -360,7 +393,7 @@ export default function OfferBuilder() {
 
     try {
       const { calculateTotals } = await import('../lib/money');
-      const totals = calculateTotals(allItemsForOffer, discountPercent, vatPercent);
+      const totals = calculateTotals(allItemsForOffer, discountAmount, vatPercent);
 
       const response = await fetch('/api/create-offer', {
         method: 'POST',
@@ -371,7 +404,7 @@ export default function OfferBuilder() {
           companyName: companyName.trim() || undefined,
           email: email.trim() || undefined,
           currency,
-          discountPercent,
+          discountAmount,
           vatPercent,
           validityDays,
           notes: notes.trim() || undefined,
@@ -479,7 +512,9 @@ export default function OfferBuilder() {
                         }
                         return sum + sp.price + nestedTotal;
                       }, 0) || 0;
-                    const totalPrice = item.price + subProductsTotal;
+                    const isCustomPrice = item.price === 0;
+                    const effectiveUnitPrice = isCustomPrice ? (customPriceByItem[itemKey] ?? 0) : item.price;
+                    const totalPrice = effectiveUnitPrice + subProductsTotal;
                     const isSelected = isItemSelected(selectedCategory, item.id);
                     
                     return (
@@ -498,23 +533,53 @@ export default function OfferBuilder() {
                                 <p className="text-sm text-gray-600 mt-1">
                                   {item.description}
                                 </p>
-                                <div className="flex items-center gap-2 mt-2">
-                                  <p className="text-sm font-semibold text-indigo-600">
-                                    {new Intl.NumberFormat('en-US', {
-                                      style: 'currency',
-                                      currency: 'EUR',
-                                    }).format(item.price)}
-                                    {['Local SEO', 'Web SEO', 'AI SEO', 'Social Media'].includes(selectedCategory) && ' / μήνα'}
-                                  </p>
-                                  {isSelected && subProductsTotal > 0 && (
+                                <div className="flex items-center gap-2 mt-2 flex-wrap">
+                                  {isCustomPrice ? (
+                                    <div className="flex items-center gap-2" onClick={(e) => e.stopPropagation()}>
+                                      <label className="text-sm text-gray-600">Custom price (€):</label>
+                                      <input
+                                        type="number"
+                                        min={0}
+                                        step="0.01"
+                                        value={customPriceByItem[itemKey] ?? ''}
+                                        onChange={(e) => {
+                                          const v = parseFloat(e.target.value) || 0;
+                                          setCustomPriceByItem((prev) => ({ ...prev, [itemKey]: v }));
+                                          if (isSelected) {
+                                            setSelectedItems((prev) =>
+                                              prev.map((si) =>
+                                                si.category === selectedCategory && si.itemId === item.id
+                                                  ? { ...si, unitPrice: v, lineTotal: v }
+                                                  : si
+                                              )
+                                            );
+                                          }
+                                        }}
+                                        className="w-24 px-2 py-1 text-sm border border-gray-300 rounded-md"
+                                      />
+                                    </div>
+                                  ) : (
+                                    <p className="text-sm font-semibold text-indigo-600">
+                                      {new Intl.NumberFormat('en-US', {
+                                        style: 'currency',
+                                        currency: 'EUR',
+                                      }).format(item.price)}
+                                      {['Local SEO', 'Web SEO', 'AI SEO', 'Social Media'].includes(selectedCategory) && ' / μήνα'}
+                                    </p>
+                                  )}
+                                  {(isSelected && subProductsTotal > 0) || (isCustomPrice && isSelected && effectiveUnitPrice > 0) ? (
                                     <>
-                                      <span className="text-gray-400">+</span>
-                                      <p className="text-sm text-gray-600">
-                                        {new Intl.NumberFormat('en-US', {
-                                          style: 'currency',
-                                          currency: 'EUR',
-                                        }).format(subProductsTotal)} (extras)
-                                      </p>
+                                      {subProductsTotal > 0 && (
+                                        <>
+                                          <span className="text-gray-400">+</span>
+                                          <p className="text-sm text-gray-600">
+                                            {new Intl.NumberFormat('en-US', {
+                                              style: 'currency',
+                                              currency: 'EUR',
+                                            }).format(subProductsTotal)} (extras)
+                                          </p>
+                                        </>
+                                      )}
                                       <span className="text-gray-400">=</span>
                                       <p className="text-sm font-bold text-indigo-700">
                                         {new Intl.NumberFormat('en-US', {
@@ -523,7 +588,7 @@ export default function OfferBuilder() {
                                         }).format(totalPrice)}
                                       </p>
                                     </>
-                                  )}
+                                  ) : null}
                                 </div>
                               </div>
                               {hasSubProducts && (
@@ -729,6 +794,19 @@ export default function OfferBuilder() {
                           className="w-20 px-2 py-1.5 text-sm border border-gray-300 rounded-md"
                         />
                       </div>
+                      <div className="flex items-center gap-2">
+                        <label className="text-sm text-gray-600">Language (€50 each):</label>
+                        <input
+                          type="number"
+                          min={0}
+                          value={extraLanguagesByCategory[selectedCategory] ?? 0}
+                          onChange={(e) => {
+                            const v = Math.max(0, parseInt(e.target.value, 10) || 0);
+                            setExtraLanguagesByCategory((prev) => ({ ...prev, [selectedCategory]: v }));
+                          }}
+                          className="w-20 px-2 py-1.5 text-sm border border-gray-300 rounded-md"
+                        />
+                      </div>
                     </div>
                   </div>
                 )}
@@ -806,15 +884,15 @@ export default function OfferBuilder() {
 
                       <div>
                         <label className="block text-sm font-medium text-gray-700 mb-1">
-                          Discount (%)
+                          Discount (€)
                         </label>
                         <input
                           type="number"
                           min="0"
-                          max="100"
-                          value={discountPercent}
+                          step="0.01"
+                          value={discountAmount}
                           onChange={(e) =>
-                            setDiscountPercent(parseFloat(e.target.value) || 0)
+                            setDiscountAmount(parseFloat(e.target.value) || 0)
                           }
                           className="w-full px-3 py-2 border border-gray-300 bg-white text-gray-900 rounded-md focus:outline-none focus:ring-2 focus:ring-indigo-500"
                         />
@@ -873,7 +951,7 @@ export default function OfferBuilder() {
           <div className="mt-6">
             <OfferSummary
               items={allItemsForOffer}
-              discountPercent={discountPercent}
+              discountAmount={discountAmount}
               vatPercent={vatPercent}
               currency={currency}
               onItemsChange={handleItemsChangeFromSummary}

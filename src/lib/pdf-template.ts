@@ -9,7 +9,6 @@ interface PdfTemplateProps {
   senderName?: string;
   senderSurname?: string;
   currency: string;
-  discountPercent: number;
   vatPercent: number;
   validityDays: number;
   notes?: string;
@@ -34,7 +33,6 @@ export function renderPdfTemplate(props: PdfTemplateProps): string {
     senderName,
     senderSurname,
     currency,
-    discountPercent,
     vatPercent,
     validityDays,
     notes,
@@ -262,9 +260,9 @@ export function renderPdfTemplate(props: PdfTemplateProps): string {
                 <span class="text-gray-600">Subtotal:</span>
                 <span class="text-gray-900">${formatCurrency(totals.subtotal, currency)}</span>
               </div>
-              ${discountPercent > 0 ? `
+              ${totals.discountAmount > 0 ? `
               <div class="flex justify-between text-sm text-green-600">
-                <span>Discount (${discountPercent}%):</span>
+                <span>Discount:</span>
                 <span>-${formatCurrency(totals.discountAmount, currency)}</span>
               </div>
               ` : ''}

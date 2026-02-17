@@ -4,7 +4,7 @@ import { formatCurrency, calculateTotals } from '../lib/money';
 
 interface OfferSummaryProps {
   items: OfferItem[];
-  discountPercent: number;
+  discountAmount: number;
   vatPercent: number;
   currency: string;
   onItemsChange: (items: OfferItem[]) => void;
@@ -12,7 +12,7 @@ interface OfferSummaryProps {
 
 export default function OfferSummary({
   items,
-  discountPercent,
+  discountAmount,
   vatPercent,
   currency,
   onItemsChange,
@@ -40,7 +40,7 @@ export default function OfferSummary({
     onItemsChange(updated);
   };
 
-  const totals = calculateTotals(localItems, discountPercent, vatPercent);
+  const totals = calculateTotals(localItems, discountAmount, vatPercent);
 
   return (
     <div className="bg-white rounded-lg shadow-md p-6">
@@ -92,9 +92,9 @@ export default function OfferSummary({
               <span>Subtotal:</span>
               <span>{formatCurrency(totals.subtotal, currency)}</span>
             </div>
-            {discountPercent > 0 && (
+            {totals.discountAmount > 0 && (
               <div className="flex justify-between text-sm text-green-600">
-                <span>Discount ({discountPercent}%):</span>
+                <span>Discount:</span>
                 <span>-{formatCurrency(totals.discountAmount, currency)}</span>
               </div>
             )}

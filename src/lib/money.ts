@@ -25,18 +25,18 @@ export function formatCurrency(amount: number, currency: string = 'EUR'): string
 
 export function calculateTotals(
   items: OfferItem[],
-  discountPercent: number,
+  discountAmount: number,
   vatPercent: number
 ): Totals {
   const subtotal = items.reduce((sum, item) => sum + item.lineTotal, 0);
-  const discountAmount = subtotal * (discountPercent / 100);
-  const taxable = subtotal - discountAmount;
+  const effectiveDiscount = Math.min(Math.max(0, discountAmount), subtotal);
+  const taxable = subtotal - effectiveDiscount;
   const vatAmount = taxable * (vatPercent / 100);
   const total = taxable + vatAmount;
 
   return {
     subtotal,
-    discountAmount,
+    discountAmount: effectiveDiscount,
     taxable,
     vatAmount,
     total,

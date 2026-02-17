@@ -8,7 +8,6 @@ interface Props {
   companyName?: string;
   email?: string;
   currency: string;
-  discountPercent: number;
   vatPercent: number;
   validityDays: number;
   notes?: string;
@@ -30,7 +29,6 @@ const {
   companyName,
   email,
   currency,
-  discountPercent,
   vatPercent,
   validityDays,
   notes,
@@ -211,9 +209,9 @@ const {
         <span>Subtotal:</span>
         <span>{formatCurrency(totals.subtotal, currency)}</span>
       </div>
-      {discountPercent > 0 && (
+      {totals.discountAmount > 0 && (
         <div class="totals-row" style="color: #059669;">
-          <span>Discount ({discountPercent}%):</span>
+          <span>Discount:</span>
           <span>-{formatCurrency(totals.discountAmount, currency)}</span>
         </div>
       )}

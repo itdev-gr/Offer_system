@@ -168,9 +168,9 @@ validUntil.setDate(validUntil.getDate() + (offer.validityDays || 14));
                 <span class="text-gray-600">Subtotal:</span>
                 <span class="text-gray-900">{formatCurrency(totals.subtotal, offer.currency)}</span>
               </div>
-              {offer.discountPercent > 0 && (
+              {totals.discountAmount > 0 && (
                 <div class="flex justify-between text-sm text-green-600">
-                  <span>Discount ({offer.discountPercent}%):</span>
+                  <span>Discount:</span>
                   <span>-{formatCurrency(totals.discountAmount, offer.currency)}</span>
                 </div>
               )}
