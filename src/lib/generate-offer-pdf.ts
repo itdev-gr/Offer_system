@@ -55,7 +55,7 @@ export async function generateOfferPdf(offerId: string): Promise<Buffer> {
 
   // In dev use full puppeteer (OS Chromium); in prod use puppeteer-core + @sparticuz/chromium for serverless
   const isDev = import.meta.env.DEV;
-  let browser: Awaited<ReturnType<Awaited<typeof import('puppeteer-core')>['launch']>;
+  let browser: Awaited<ReturnType<Awaited<typeof import('puppeteer-core')>['launch']>>;
   if (isDev) {
     const puppeteer = await import('puppeteer');
     browser = await puppeteer.default.launch({ headless: true });
